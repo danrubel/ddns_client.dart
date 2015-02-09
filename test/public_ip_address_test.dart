@@ -1,6 +1,7 @@
 library ip.monitor.test;
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:ddns_client/mock/mock_public_ip_address.dart';
 import 'package:ddns_client/public_ip_address.dart';
@@ -24,8 +25,8 @@ main([List<String> args]) {
       PublicIpAddressMonitor monitor;
 
       setUp(() {
-        monitor = new PublicIpAddressMonitor(
-            MockPublicIpAddressWebsite.randomWebsite);
+        monitor =
+            new PublicIpAddressMonitor(MockPublicIpAddressWebsite.randomWebsite);
       });
 
       test('ipAddress null', () async {
@@ -54,8 +55,8 @@ main([List<String> args]) {
       PublicIpAddressMonitor monitor;
 
       setUp(() {
-        monitor = new PublicIpAddressMonitor(
-            MockPublicIpAddressWebsite.randomWebsite);
+        monitor =
+            new PublicIpAddressMonitor(MockPublicIpAddressWebsite.randomWebsite);
       });
 
       tearDown(() {
@@ -123,6 +124,63 @@ main([List<String> args]) {
 
   group('PublicIpWebsite', () {
 
+    group('extractIpAddress', () {
+      test('simple', () {
+        PublicIpAddressWebsite website =
+            new PublicIpAddressWebsite('http://does.not.exist');
+        String result = website.extractIp('1.2.3.4');
+        expect('1.2.3.4', result);
+      });
+      test('prefix/suffix', () {
+        PublicIpAddressWebsite website = new PublicIpAddressWebsite(
+            'http://does.not.exist',
+            prefix: 'start',
+            suffix: 'end');
+        String result = website.extractIp('boostart   1.2.3.4 \t\nendmore');
+        expect('1.2.3.4', result);
+      });
+    });
+
+    group('processResponse', () {
+      test('bad status code', () {
+        PublicIpAddressWebsite website =
+            new PublicIpAddressWebsite('http://does.not.exist');
+        MockResponse response = new MockResponse();
+        response.statusCode = HttpStatus.GATEWAY_TIMEOUT;
+        try {
+          website.processResponse(response);
+          fail('expected exception');
+        } on PublicIpAddressException catch (e) {
+          // Expect exception
+        }
+      });
+      test('invalid address', () {
+        PublicIpAddressWebsite website =
+            new PublicIpAddressWebsite('http://does.not.exist');
+        MockResponse response = new MockResponse();
+        response.contents = '1.2.3.4.invalid.address';
+        bool caughtException = false;
+        return website.processResponse(response).catchError((e, s) {
+          caughtException = true;
+        }).then((_) {
+          expect(caughtException, isTrue);
+        });
+      });
+      test('success', () {
+        PublicIpAddressWebsite website =
+            new PublicIpAddressWebsite('http://does.not.exist');
+        MockResponse response = new MockResponse();
+        response.contents = '1.2.3.4';
+        bool caughtException = false;
+        return website.processResponse(response).catchError((e, s) {
+          caughtException = true;
+        }).then((String address) {
+          expect(caughtException, isFalse);
+          expect(address, '1.2.3.4');
+        });
+      });
+    });
+
     test('randomWebsite', () {
       PublicIpAddressWebsite website = PublicIpAddressWebsite.randomWebsite();
       expect(website, isNotNull);
@@ -168,11 +226,9 @@ main([List<String> args]) {
   });
 }
 
-/**
- * Returns a [Future] that completes after pumping the event queue [times]
- * times. By default, this should pump the event queue enough times to allow
- * any code to run, as long as it's not waiting on some external event.
- */
+/// Returns a [Future] that completes after pumping the event queue [times]
+/// times. By default, this should pump the event queue enough times to allow
+/// any code to run, as long as it's not waiting on some external event.
 Future _pumpEventQueue([int times = 20]) {
   if (times == 0) return new Future.value();
   // We use a delayed future to allow microtask events to finish. The
@@ -180,4 +236,22 @@ Future _pumpEventQueue([int times = 20]) {
   // would therefore not wait for microtask callbacks that are scheduled after
   // invoking this method.
   return new Future.delayed(Duration.ZERO, () => _pumpEventQueue(times - 1));
+}
+
+/// Mock response for testing
+class MockResponse implements HttpClientResponse {
+  int statusCode = HttpStatus.OK;
+  String contents = null;
+
+  noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
+  @override
+  Stream transform(StreamTransformer<List<int>, dynamic> transformer) {
+    StreamController<String> controller = new StreamController<String>();
+    new Future.microtask(() {
+      controller.add(contents);
+      controller.close();
+    });
+    return controller.stream;
+  }
 }

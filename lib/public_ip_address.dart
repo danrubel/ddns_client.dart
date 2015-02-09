@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:ddns_client/ip_address.dart';
 import 'package:logging/logging.dart';
 
 /// Signature for a method that will return a website
@@ -101,8 +100,8 @@ class PublicIpAddressMonitor {
   /// so that this and applications built on it
   /// can be tested without actually querying for the public ip address.
   PublicIpAddressMonitor([this.randomWebsite]) {
-    if (randomWebsite == null)
-      randomWebsite = PublicIpAddressWebsite.randomWebsite;
+    if (randomWebsite == null) randomWebsite =
+        PublicIpAddressWebsite.randomWebsite;
   }
 
   /// Check [ipAddress] against the ip returned by a public website,
@@ -153,8 +152,7 @@ class PublicIpAddressMonitor {
     // then notify listeners via an event
     if (_monitorController != null && (hasChanged || _firstIpAddressCheck)) {
       _firstIpAddressCheck = false;
-      _monitorController.add(
-          new PublicIpAddressEvent(oldIpAddress, ipAddress));
+      _monitorController.add(new PublicIpAddressEvent(oldIpAddress, ipAddress));
     }
     return new Future.value(hasChanged);
   }
@@ -306,7 +304,10 @@ class PublicIpAddressWebsite {
       String ip;
       try {
         ip = extractIp(contents);
-        if (!isValidIpAddress(ip)) {
+        // Validate the extracted ip address
+        try {
+          new InternetAddress(ip);
+        } on ArgumentError {
           completer.completeError(
               new PublicIpAddressException('Invalid ip extracted: $ip', uri.toString()));
           return;

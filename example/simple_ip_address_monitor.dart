@@ -3,7 +3,6 @@ library ip.monitor.example;
 import 'dart:io';
 
 import 'package:ddns_client/ddns_updater.dart';
-import 'package:ddns_client/ip_address.dart';
 import 'package:ddns_client/public_ip_address.dart';
 import 'package:logging/logging.dart';
 
@@ -11,13 +10,6 @@ import 'package:logging/logging.dart';
 /// notifies the user when it changes,
 /// and updates the dynamic DNS entry with the new ip address.
 main() {
-
-  // Echo local ip addresses
-  localInternetAddresses.then((List<InternetAddress> addresses) {
-    for (String address in addresses) {
-      print('Local ip address: $address');
-    }
-  });
 
   // Change the log level to show more information
   // and output log events to the console
