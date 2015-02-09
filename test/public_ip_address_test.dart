@@ -6,7 +6,7 @@ import 'package:ddns_client/mock/mock_public_ip_address.dart';
 import 'package:ddns_client/public_ip_address.dart';
 import 'package:unittest/unittest.dart';
 
-main(List<String> args) {
+main([List<String> args]) {
 
   // Pass --testAllWebsites on the command line
   // to test obtaining an public ip address for each website.

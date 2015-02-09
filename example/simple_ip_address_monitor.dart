@@ -13,9 +13,9 @@ import 'package:logging/logging.dart';
 main() {
 
   // Echo local ip addresses
-  localIpAddresses.then((List<String> ipAddresses) {
-    for (String ipAddress in ipAddresses) {
-      print('Local ip address: $ipAddress');
+  localInternetAddresses.then((List<InternetAddress> addresses) {
+    for (String address in addresses) {
+      print('Local ip address: $address');
     }
   });
 
