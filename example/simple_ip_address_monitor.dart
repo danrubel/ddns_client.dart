@@ -24,17 +24,17 @@ main() {
   // Simulate loading the current ip address from a file
   // or leave it `null` to accept the current public ip address as valid
   // without updating the dynamic dns entry
-  PublicIpAddressMonitor monitor = new PublicIpAddressMonitor();
-  monitor.ipAddress = '1.2.3.4';
+  PublicAddressMonitor monitor = new PublicAddressMonitor();
+  monitor.address = '1.2.3.4';
 
   // Check the public ip address immediately and every 10 minutes thereafter
-  monitor.startWatching().listen((PublicIpAddressEvent event) {
-    print('Original public ip address: ${event.oldIpAddress}');
-    print('Current  public ip address: ${event.newIpAddress}');
+  monitor.startWatching().listen((PublicAddressEvent event) {
+    print('Original public ip address: ${event.oldAddress}');
+    print('Current  public ip address: ${event.newAddress}');
 
     // If the public ip address changed, then update the dynamic dns entry
-    if (event.oldIpAddress != null &&
-        event.oldIpAddress != event.newIpAddress) {
+    if (event.oldAddress != null &&
+        event.oldAddress != event.newAddress) {
       Dyndns2Updater updater =
           new Dyndns2Updater(username: null, password: null, hostname: null);
       if (updater.username == null ||
@@ -45,7 +45,7 @@ main() {
                 ' to update a dynamic dns entry');
         exit(1);
       }
-      updater.update(event.newIpAddress).then((UpdateResult result) {
+      updater.update(event.newAddress).then((UpdateResult result) {
         if (result.success == true) {
           // success
           print('${updater.hostname}.dyndns.org entry updated');
