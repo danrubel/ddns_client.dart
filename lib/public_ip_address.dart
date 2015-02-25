@@ -257,7 +257,7 @@ class PublicAddressWebsite {
 
   /// Determine the current public internet address.
   Future<InternetAddress> get requestAddressNew {
-    return httpClient.getUrl(uri).then(processRequest).then(processResponseNew);
+    return httpClient.getUrl(uri).then(processRequest).then(processResponse);
   }
 
   /// Extract the internet address from the response
@@ -302,7 +302,7 @@ class PublicAddressWebsite {
   }
 
   /// Extract the public internet address from the response
-  Future<InternetAddress> processResponseNew(HttpClientResponse response) {
+  Future<InternetAddress> processResponse(HttpClientResponse response) {
     if (response.statusCode != HttpStatus.OK) {
       String errMsg = 'Request failed';
       // If the website refused to answer, then remove it from the list

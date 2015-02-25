@@ -149,7 +149,7 @@ main([List<String> args]) {
         MockResponse response = new MockResponse();
         response.statusCode = HttpStatus.GATEWAY_TIMEOUT;
         try {
-          website.processResponseNew(response);
+          website.processResponse(response);
           fail('expected exception');
         } on PublicAddressException catch (e) {
           // Expect exception
@@ -161,7 +161,7 @@ main([List<String> args]) {
         MockResponse response = new MockResponse();
         response.contents = '1.2.3.4.invalid.address';
         bool caughtException = false;
-        return website.processResponseNew(response).catchError((e, s) {
+        return website.processResponse(response).catchError((e, s) {
           caughtException = true;
         }).then((_) {
           expect(caughtException, isTrue);
@@ -173,7 +173,7 @@ main([List<String> args]) {
         MockResponse response = new MockResponse();
         response.contents = '1.2.3.4';
         bool caughtException = false;
-        return website.processResponseNew(response).catchError((e, s) {
+        return website.processResponse(response).catchError((e, s) {
           caughtException = true;
         }).then((InternetAddress address) {
           expect(caughtException, isFalse);
