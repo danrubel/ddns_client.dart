@@ -78,9 +78,7 @@ class PublicAddressMonitor {
   /// This field is initialized directly or via the constructor,
   /// and updated with the current public internet address
   /// when [checkAddress] is called.
-  InternetAddress addressNew;
-
-  String get address => addressNew != null ? addressNew.address : null;
+  InternetAddress address;
 
   /// The function for obtaining a website
   /// which can be queried for the public internet address.
@@ -118,12 +116,12 @@ class PublicAddressMonitor {
     PublicAddressWebsite website = randomWebsite();
     _logger.log(Level.FINE, 'requesting public internet address from $website');
     return website.requestAddress.then((InternetAddress newAddress) {
-      if (addressNew == null) {
-        addressNew = newAddress;
+      if (address == null) {
+        address = newAddress;
         return false;
       }
-      if (addressNew != newAddress) {
-        addressNew = newAddress;
+      if (address != newAddress) {
+        address = newAddress;
         return true;
       }
       return false;
@@ -141,24 +139,24 @@ class PublicAddressMonitor {
   /// If [startWatching] has been called, then an event is sent
   /// via the stream returned by [startWatching].
   Future<bool> checkAddress([_]) async {
-    InternetAddress oldAddress = addressNew;
+    InternetAddress oldAddress = address;
 
     bool hasChanged = await _hasAddressChanged;
 
     // If the address has changed or the website failed to return an address,
     // then verify the new address with a different website
     // before reporting it as changed
-    if (hasChanged || addressNew == null) {
-      InternetAddress newAddress = addressNew;
-      addressNew = oldAddress;
-      hasChanged = await _hasAddressChanged && addressNew == newAddress;
+    if (hasChanged || address == null) {
+      InternetAddress newAddress = address;
+      address = oldAddress;
+      hasChanged = await _hasAddressChanged && address == newAddress;
     }
 
     // If the address has changed or this is the first address check
     // then notify listeners via an event
     if (_monitorController != null && (hasChanged || _firstAddressCheck)) {
       _firstAddressCheck = false;
-      _monitorController.add(new PublicAddressEvent(oldAddress, addressNew));
+      _monitorController.add(new PublicAddressEvent(oldAddress, address));
     }
     return new Future.value(hasChanged);
   }
