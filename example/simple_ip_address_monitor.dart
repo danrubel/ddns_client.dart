@@ -25,7 +25,7 @@ main() {
   // or leave it `null` to accept the current public ip address as valid
   // without updating the dynamic dns entry
   PublicAddressMonitor monitor = new PublicAddressMonitor();
-  monitor.address = '1.2.3.4';
+  monitor.addressNew = new InternetAddress('1.2.3.4');
 
   // Check the public ip address immediately and every 10 minutes thereafter
   monitor.startWatching().listen((PublicAddressEvent event) {

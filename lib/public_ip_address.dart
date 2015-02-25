@@ -15,10 +15,13 @@ typedef PublicAddressWebsite RandomWebsite();
 /// in the event stream returned by startWatching method
 /// in [PublicAddressMonitor].
 class PublicAddressEvent {
-  final String oldAddress;
-  final String newAddress;
+  final InternetAddress oldAddress2;
+  final InternetAddress newAddress2;
 
-  PublicAddressEvent(this.oldAddress, this.newAddress);
+  String get oldAddress => oldAddress2 != null ? oldAddress2.address : null;
+  String get newAddress => newAddress2 != null ? newAddress2.address : null;
+
+  PublicAddressEvent(this.oldAddress2, this.newAddress2);
 }
 
 /// [PublicAddressException] represents an exception that occurred
@@ -78,7 +81,9 @@ class PublicAddressMonitor {
   /// This field is initialized directly or via the constructor,
   /// and updated with the current public internet address
   /// when [checkAddress] is called.
-  String address;
+  InternetAddress addressNew;
+
+  String get address => addressNew != null ? addressNew.address : null;
 
   /// The function for obtaining a website
   /// which can be queried for the public internet address.
@@ -116,12 +121,12 @@ class PublicAddressMonitor {
     PublicAddressWebsite website = randomWebsite();
     _logger.log(Level.FINE, 'requesting public internet address from $website');
     return website.requestAddress.then((InternetAddress newAddress) {
-      if (address == null) {
-        address = newAddress.address;
+      if (addressNew == null) {
+        addressNew = newAddress;
         return false;
       }
-      if (address != newAddress.address) {
-        address = newAddress.address;
+      if (addressNew != newAddress) {
+        addressNew = newAddress;
         return true;
       }
       return false;
@@ -139,24 +144,24 @@ class PublicAddressMonitor {
   /// If [startWatching] has been called, then an event is sent
   /// via the stream returned by [startWatching].
   Future<bool> checkAddress([_]) async {
-    String oldAddress = address;
+    InternetAddress oldAddress = addressNew;
 
     bool hasChanged = await _hasAddressChanged;
 
     // If the address has changed or the website failed to return an address,
     // then verify the new address with a different website
     // before reporting it as changed
-    if (hasChanged || address == null) {
-      String newAddress = address;
-      address = oldAddress;
-      hasChanged = await _hasAddressChanged && address == newAddress;
+    if (hasChanged || addressNew == null) {
+      InternetAddress newAddress = addressNew;
+      addressNew = oldAddress;
+      hasChanged = await _hasAddressChanged && addressNew == newAddress;
     }
 
     // If the address has changed or this is the first address check
     // then notify listeners via an event
     if (_monitorController != null && (hasChanged || _firstAddressCheck)) {
       _firstAddressCheck = false;
-      _monitorController.add(new PublicAddressEvent(oldAddress, address));
+      _monitorController.add(new PublicAddressEvent(oldAddress, addressNew));
     }
     return new Future.value(hasChanged);
   }

@@ -31,23 +31,23 @@ main([List<String> args]) {
 
       test('address null', () async {
         MockPublicAddressWebsite.addressFromWebsite = '1.2.3.4';
-        expect(monitor.address, isNull);
+        expect(monitor.addressNew, isNull);
         expect(await monitor.checkAddress(), isFalse);
-        expect(monitor.address, '1.2.3.4');
+        expect(monitor.addressNew.address, '1.2.3.4');
       });
 
       test('address same', () async {
         MockPublicAddressWebsite.addressFromWebsite = '1.2.3.4';
-        monitor.address = '1.2.3.4';
+        monitor.addressNew = new InternetAddress('1.2.3.4');
         expect(await monitor.checkAddress(), isFalse);
-        expect(monitor.address, '1.2.3.4');
+        expect(monitor.addressNew.address, '1.2.3.4');
       });
 
       test('address different', () async {
         MockPublicAddressWebsite.addressFromWebsite = '1.2.3.4';
-        monitor.address = '4.3.2.1';
+        monitor.addressNew = new InternetAddress('4.3.2.1');
         expect(await monitor.checkAddress(), isTrue);
-        expect(monitor.address, '1.2.3.4');
+        expect(monitor.addressNew.address, '1.2.3.4');
       });
     });
 
@@ -65,7 +65,7 @@ main([List<String> args]) {
 
       test('address null', () async {
         MockPublicAddressWebsite.addressFromWebsite = '1.2.3.4';
-        expect(monitor.address, isNull);
+        expect(monitor.addressNew, isNull);
         Completer completer = new Completer();
         monitor.startWatching().listen((PublicAddressEvent event) {
           expect(event.oldAddress, isNull);
@@ -77,7 +77,7 @@ main([List<String> args]) {
 
       test('address same', () async {
         MockPublicAddressWebsite.addressFromWebsite = '1.2.3.4';
-        monitor.address = '1.2.3.4';
+        monitor.addressNew = new InternetAddress('1.2.3.4');
         Completer completer = new Completer();
         monitor.startWatching().listen((PublicAddressEvent event) {
           expect(event.oldAddress, '1.2.3.4');
@@ -89,7 +89,7 @@ main([List<String> args]) {
 
       test('address different', () async {
         MockPublicAddressWebsite.addressFromWebsite = '5.6.7.8';
-        monitor.address = '1.2.3.4';
+        monitor.addressNew = new InternetAddress('1.2.3.4');
         Completer completer = new Completer();
         monitor.startWatching().listen((PublicAddressEvent event) {
           expect(event.oldAddress, '1.2.3.4');
@@ -101,7 +101,7 @@ main([List<String> args]) {
 
       test('address sequence', () async {
         MockPublicAddressWebsite.addressFromWebsite = '1.2.3.4';
-        monitor.address = null;
+        monitor.addressNew = null;
         int eventCount = 0;
         monitor.startWatching().listen((PublicAddressEvent event) {
           ++eventCount;
@@ -223,6 +223,24 @@ main([List<String> args]) {
         });
         expect(same, isTrue, reason: 'Expected same address from all websites');
       });
+    });
+  });
+
+  group('InternetAddress', () {
+    test('equal', () {
+      var address1 = new InternetAddress('1.2.3.4');
+      var address2 = new InternetAddress('1.2.3.4');
+      expect(address1, equals(address2));
+    });
+    test('equal2', () {
+      var address1 = new InternetAddress('1.2.3.4');
+      var address2 = new InternetAddress('1.2.3.4');
+      expect(address1 == address2, isTrue);
+    });
+    test('unequal', () {
+      var address1 = new InternetAddress('1.2.3.45');
+      var address2 = new InternetAddress('1.2.3.4');
+      expect(address1, isNot(equals(address2)));
     });
   });
 }
