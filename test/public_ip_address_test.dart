@@ -69,7 +69,7 @@ main([List<String> args]) {
         Completer completer = new Completer();
         monitor.startWatching().listen((PublicAddressEvent event) {
           expect(event.oldAddress, isNull);
-          expect(event.newAddress, '1.2.3.4');
+          expect(event.newAddress.address, '1.2.3.4');
           completer.complete();
         });
         await completer.future;
@@ -80,8 +80,8 @@ main([List<String> args]) {
         monitor.addressNew = new InternetAddress('1.2.3.4');
         Completer completer = new Completer();
         monitor.startWatching().listen((PublicAddressEvent event) {
-          expect(event.oldAddress, '1.2.3.4');
-          expect(event.newAddress, '1.2.3.4');
+          expect(event.oldAddress.address, '1.2.3.4');
+          expect(event.newAddress.address, '1.2.3.4');
           completer.complete();
         });
         await completer.future;
@@ -92,8 +92,8 @@ main([List<String> args]) {
         monitor.addressNew = new InternetAddress('1.2.3.4');
         Completer completer = new Completer();
         monitor.startWatching().listen((PublicAddressEvent event) {
-          expect(event.oldAddress, '1.2.3.4');
-          expect(event.newAddress, '5.6.7.8');
+          expect(event.oldAddress.address, '1.2.3.4');
+          expect(event.newAddress.address, '5.6.7.8');
           completer.complete();
         });
         await completer.future;

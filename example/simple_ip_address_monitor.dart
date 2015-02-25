@@ -45,7 +45,7 @@ main() {
                 ' to update a dynamic dns entry');
         exit(1);
       }
-      updater.update(event.newAddress).then((UpdateResult result) {
+      updater.update(event.newAddress.address).then((UpdateResult result) {
         if (result.success == true) {
           // success
           print('${updater.hostname}.dyndns.org entry updated');
