@@ -115,13 +115,13 @@ class PublicAddressMonitor {
   Future<bool> get _hasAddressChanged {
     PublicAddressWebsite website = randomWebsite();
     _logger.log(Level.FINE, 'requesting public internet address from $website');
-    return website.requestAddress.then((String newAddress) {
+    return website.requestAddress.then((InternetAddress newAddress) {
       if (address == null) {
-        address = newAddress;
+        address = newAddress.address;
         return false;
       }
-      if (address != newAddress) {
-        address = newAddress;
+      if (address != newAddress.address) {
+        address = newAddress.address;
         return true;
       }
       return false;
@@ -251,12 +251,7 @@ class PublicAddressWebsite {
   HttpClient get httpClient => new HttpClient();
 
   /// Determine the current public internet address.
-  Future<String> get requestAddress {
-    return requestAddressNew.then((InternetAddress address) => address.address);
-  }
-
-  /// Determine the current public internet address.
-  Future<InternetAddress> get requestAddressNew {
+  Future<InternetAddress> get requestAddress {
     return httpClient.getUrl(uri).then(processRequest).then(processResponse);
   }
 
