@@ -19,14 +19,14 @@ class MockDynamicDNSUpdater implements DynamicDNSUpdater {
   int updateCount = 0;
 
   @override
-  Future<UpdateResult> update(String ipAddress) {
+  Future<UpdateResult> update(String address) {
     ++updateCount;
     return new Future(() {
       UpdateResult result = new UpdateResult();
       result.success = true;
       result.statusCode = HttpStatus.OK;
       result.reasonPhrase = 'a reason';
-      result.ipAddress = ipAddress;
+      result.ipAddress = address;
       result.contents = 'content returned by ddns website';
       result.timestamp = new DateTime.now();
       return result;

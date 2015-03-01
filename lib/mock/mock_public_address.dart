@@ -14,8 +14,8 @@ import 'package:matcher/matcher.dart';
 /// can be tested without actually querying for the public internet address.
 class MockPublicAddressWebsite implements PublicAddressWebsite {
 
-  /// Set this field with the value that would be returned by a public ip
-  /// address provider when the [hasIpAddressChanged] method is called.
+  /// Set this field with the value that would be returned by a public address
+  /// provider when the [PublicAddressMonitor.checkAddress] method is called.
   static String addressFromWebsite;
 
   @override
