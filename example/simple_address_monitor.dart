@@ -1,4 +1,4 @@
-library ip.monitor.example;
+library public.address.monitor.example;
 
 import 'dart:io';
 
@@ -6,9 +6,9 @@ import 'package:ddns_client/ddns_updater.dart';
 import 'package:ddns_client/public_address.dart';
 import 'package:logging/logging.dart';
 
-/// A simple example that monitors the public ip address,
+/// A simple example that monitors the public internet address,
 /// notifies the user when it changes,
-/// and updates the dynamic DNS entry with the new ip address.
+/// and updates the dynamic DNS entry with the new public address.
 main() {
 
   // Change the log level to show more information
@@ -21,18 +21,18 @@ main() {
     print(logMsg);
   });
 
-  // Simulate loading the current ip address from a file
-  // or leave it `null` to accept the current public ip address as valid
+  // Simulate loading the current public address from a file
+  // or leave it `null` to accept the current public address as valid
   // without updating the dynamic dns entry
   PublicAddressMonitor monitor = new PublicAddressMonitor();
   monitor.address = new InternetAddress('1.2.3.4');
 
-  // Check the public ip address immediately and every 10 minutes thereafter
+  // Check the public address immediately and every 10 minutes thereafter
   monitor.startWatching().listen((PublicAddressEvent event) {
-    print('Original public ip address: ${event.oldAddress}');
-    print('Current  public ip address: ${event.newAddress}');
+    print('Original public address: ${event.oldAddress}');
+    print('Current  public address: ${event.newAddress}');
 
-    // If the public ip address changed, then update the dynamic dns entry
+    // If the public address changed, then update the dynamic dns entry
     if (event.oldAddress != null &&
         event.oldAddress != event.newAddress) {
       Dyndns2Updater updater =
