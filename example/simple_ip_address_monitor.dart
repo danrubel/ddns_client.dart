@@ -3,7 +3,7 @@ library ip.monitor.example;
 import 'dart:io';
 
 import 'package:ddns_client/ddns_updater.dart';
-import 'package:ddns_client/public_ip_address.dart';
+import 'package:ddns_client/public_address.dart';
 import 'package:logging/logging.dart';
 
 /// A simple example that monitors the public ip address,

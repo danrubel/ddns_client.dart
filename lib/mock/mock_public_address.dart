@@ -3,7 +3,7 @@ library mock.public.address.monitor;
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ddns_client/public_ip_address.dart';
+import 'package:ddns_client/public_address.dart';
 import 'package:matcher/matcher.dart';
 
 /// A mock [PublicAddressWebsite] for testing
@@ -23,7 +23,7 @@ class MockPublicAddressWebsite implements PublicAddressWebsite {
     expect(
         addressFromWebsite,
         isNotNull,
-        reason: 'must set ipAddressFromWebsite first');
+        reason: 'must set addressFromWebsite first');
     return new Future.value(new InternetAddress(addressFromWebsite));
   }
 

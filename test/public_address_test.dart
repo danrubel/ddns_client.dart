@@ -3,8 +3,8 @@ library test.public.address.monitor;
 import 'dart:async';
 import 'dart:io';
 
-import 'package:ddns_client/mock/mock_public_ip_address.dart';
-import 'package:ddns_client/public_ip_address.dart';
+import 'package:ddns_client/mock/mock_public_address.dart';
+import 'package:ddns_client/public_address.dart';
 import 'package:unittest/unittest.dart';
 
 main([List<String> args]) {
