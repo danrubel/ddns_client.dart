@@ -12,7 +12,7 @@ and updating a dynamic dns entry.
 
 ## Example
 
-A [simple example](example/simple_ip_address_monitor.dart)
+A [simple example](example/simple_address_monitor.dart)
 for monitoring an internet address and updating a dyndns.org entry
 is provided as part of this package.
 
