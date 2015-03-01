@@ -30,11 +30,7 @@ abstract class DynamicDNSUpdater {
 
   /// Update the DDNS service with the new public address.
   /// Return a future that completes with bool indicating success.
-  Future<UpdateResult> update(String ipAddress);
-
-  /// Update the DDNS service with the new public address.
-  /// Return a future that completes with bool indicating success.
-  Future<UpdateResult> updateNew(InternetAddress address);
+  Future<UpdateResult> update(InternetAddress address);
 }
 
 /**
@@ -77,20 +73,20 @@ class Dyndns2Updater extends DynamicDNSUpdater {
     result.contents = contents;
     if (contents.startsWith('good ')) {
       result.success = true;
-      result.rawAddress = contents.substring(5).trim();
+      result.addressText = contents.substring(5).trim();
       return;
     }
     if (contents.startsWith('nochg ')) {
       result.success = null;
-      result.rawAddress = contents.substring(6).trim();
+      result.addressText = contents.substring(6).trim();
       return;
     }
     result.success = false;
-    result.rawAddress = null;
+    result.addressText = null;
   }
 
   @override
-  Future<UpdateResult> update(String ipAddress) {
+  Future<UpdateResult> update(InternetAddress address) {
     if (hostname == null) {
       throw 'must set hostname';
     }
@@ -101,7 +97,7 @@ class Dyndns2Updater extends DynamicDNSUpdater {
         new StringBuffer('https://members.dyndns.org/nic/update?hostname=');
     sb.write(hostname);
     sb.write('&myip=');
-    sb.write(ipAddress);
+    sb.write(address.address);
     Uri uri = Uri.parse(sb.toString());
     HttpClient client = httpClient;
     client.addCredentials(
@@ -109,11 +105,6 @@ class Dyndns2Updater extends DynamicDNSUpdater {
         'realm',
         new HttpClientBasicCredentials(username, password));
     return client.getUrl(uri).then(processRequest).then(processResponse);
-  }
-
-  @override
-  Future<UpdateResult> updateNew(InternetAddress address) {
-    return update(address.address);
   }
 }
 
@@ -133,8 +124,8 @@ class UpdateResult {
   /// The reason phrase associated with the status code.
   String reasonPhrase;
 
-  /// The raw unvalidated address text returned by the server or `null` if none
-  String rawAddress;
+  /// The unvalidated address text returned by the server or `null` if none
+  String addressText;
 
   /// The content message returned by the server if any.
   String contents;

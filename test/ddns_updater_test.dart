@@ -20,13 +20,13 @@ main() {
       target.username = 'myusername';
       target.password = 'mypassword';
       target.mockResponseContents = 'good 1.2.3.4';
-      return target.updateNew(
+      return target.update(
           new InternetAddress('1.2.3.4')).then((UpdateResult result) {
         expect(result.success, isTrue);
         expect(result.statusCode, HttpStatus.OK);
         expect(result.reasonPhrase, 'someReason');
         expect(result.contents, 'good 1.2.3.4');
-        expect(result.rawAddress, '1.2.3.4');
+        expect(result.addressText, '1.2.3.4');
 
         MockClient client = target.mockClient;
         Uri urlSent = client.urlSent;
@@ -54,7 +54,7 @@ main() {
       target.processResponseContents(result, 'good 1.2.3.4');
       expect(result.contents, 'good 1.2.3.4');
       expect(result.success, isTrue);
-      expect(result.rawAddress, '1.2.3.4');
+      expect(result.addressText, '1.2.3.4');
     });
 
     test('response_nochg', () {
@@ -62,7 +62,7 @@ main() {
       target.processResponseContents(result, 'nochg 5.2.3.4');
       expect(result.contents, 'nochg 5.2.3.4');
       expect(result.success, isNull);
-      expect(result.rawAddress, '5.2.3.4');
+      expect(result.addressText, '5.2.3.4');
     });
 
     test('response_badauth', () {
@@ -70,7 +70,7 @@ main() {
       target.processResponseContents(result, 'badauth');
       expect(result.contents, 'badauth');
       expect(result.success, isFalse);
-      expect(result.rawAddress, isNull);
+      expect(result.addressText, isNull);
     });
 
     test('response_404', () {
@@ -80,7 +80,7 @@ main() {
         expect(result.statusCode, HttpStatus.NOT_FOUND);
         expect(result.contents, isNull);
         expect(result.success, isFalse);
-        expect(result.rawAddress, isNull);
+        expect(result.addressText, isNull);
       });
     });
   });
