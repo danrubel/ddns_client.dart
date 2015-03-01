@@ -115,7 +115,7 @@ class Dyndns2Updater extends DynamicDNSUpdater {
 class UpdateResult {
 
   /// `true` if the update succeeded, `false` if the update failed
-  /// or `null` if the server was already updated to the given ip.
+  /// or `null` if the server was already updated to the given internet address.
   bool success;
 
   /// The http status code
