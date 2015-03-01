@@ -11,18 +11,30 @@ const String ddnsClientVersion = '0.1';
  * [DynamicDNSUpdater] is a base class for updating a dynamic DNS server
  * such as dyndns.org. This was inspired by python-dyndnsc...
  * https://github.com/infothrill/python-dyndnsc/blob/develop/dyndnsc/updater/dyndns2.py
- *
  */
 abstract class DynamicDNSUpdater {
 
   /// The hostname to be updated
   String hostname;
 
-  DynamicDNSUpdater({this.hostname});
+  /// The username of the account containing dynamic dns entry
+  String username;
 
-  /// Update the DDNS service with the new IP address.
+  /// The password for the account containing dynamic dns entry
+  String password;
+
+  DynamicDNSUpdater({this.hostname, this.username, this.password});
+
+  /// Return a new client for updating the dynamic DNS server
+  HttpClient get httpClient => new HttpClient();
+
+  /// Update the DDNS service with the new public address.
   /// Return a future that completes with bool indicating success.
   Future<UpdateResult> update(String ipAddress);
+
+  /// Update the DDNS service with the new public address.
+  /// Return a future that completes with bool indicating success.
+  Future<UpdateResult> updateNew(InternetAddress address);
 }
 
 /**
@@ -30,14 +42,9 @@ abstract class DynamicDNSUpdater {
  * See http://dyn.com/support/developers/api/perform-update/
  */
 class Dyndns2Updater extends DynamicDNSUpdater {
-  String username;
-  String password;
 
-  Dyndns2Updater({String hostname, this.username, this.password})
-      : super(hostname: hostname);
-
-  /// Return a new client for updating the dynamic DNS server
-  HttpClient get httpClient => new HttpClient();
+  Dyndns2Updater({String hostname, String username, String password})
+      : super(hostname: hostname, username: username, password: password);
 
   /// Provide additional information for the request
   Future<HttpClientResponse> processRequest(HttpClientRequest request) {
@@ -70,16 +77,16 @@ class Dyndns2Updater extends DynamicDNSUpdater {
     result.contents = contents;
     if (contents.startsWith('good ')) {
       result.success = true;
-      result.ipAddress = contents.substring(5).trim();
+      result.rawAddress = contents.substring(5).trim();
       return;
     }
     if (contents.startsWith('nochg ')) {
       result.success = null;
-      result.ipAddress = contents.substring(6).trim();
+      result.rawAddress = contents.substring(6).trim();
       return;
     }
     result.success = false;
-    result.ipAddress = null;
+    result.rawAddress = null;
   }
 
   @override
@@ -103,6 +110,11 @@ class Dyndns2Updater extends DynamicDNSUpdater {
         new HttpClientBasicCredentials(username, password));
     return client.getUrl(uri).then(processRequest).then(processResponse);
   }
+
+  @override
+  Future<UpdateResult> updateNew(InternetAddress address) {
+    return update(address.address);
+  }
 }
 
 /**
@@ -121,8 +133,8 @@ class UpdateResult {
   /// The reason phrase associated with the status code.
   String reasonPhrase;
 
-  /// The ip address returned by the server or `null` if none
-  String ipAddress;
+  /// The raw unvalidated address text returned by the server or `null` if none
+  String rawAddress;
 
   /// The content message returned by the server if any.
   String contents;
