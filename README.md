@@ -3,11 +3,13 @@ and updating a dynamic dns entry.
 
 ## Overview
 
- * __PublicAddressMonitor__ provides functionality for both
+ * __[PublicAddressMonitor](lib/public_address.dart)__ 
+   provides functionality for both
    a one time check of the public internet address
    and continuous (periodic) monitoring of the public internet address.
 
- * __DynamicDnsUpdater__ and its subclasses provide functionality
+ * __[DynamicDnsUpdater](lib/ddns_updater.dart)__ 
+   and its subclasses provide functionality
    for updating a dynamic dns entry such as those at dyndns.org
 
 ## Example
