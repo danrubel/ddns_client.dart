@@ -1,10 +1,11 @@
-Dart library for checking the public internet address
+# dart_ddns_client
+
+A Dart library for checking the public internet address
 and updating a dynamic dns entry.
 
 [![pub package](https://img.shields.io/pub/v/ddns_client.svg)](https://pub.dartlang.org/packages/ddns_client)
 [![Build Status](https://travis-ci.org/danrubel/dart_ddns_client.svg?branch=master)](https://travis-ci.org/danrubel/dart_ddns_client)
 [![Coverage Status](https://coveralls.io/repos/danrubel/dart_ddns_client/badge.svg?branch=master)](https://coveralls.io/r/danrubel/dart_ddns_client?branch=master)
-
 
 ## Overview
 
@@ -25,7 +26,7 @@ is provided as part of this package.
 
 ### Monitoring a public internet address:
 
-```
+```dart
 var monitor = new PublicAddressMonitor();
 monitor.startWatching().listen((PublicAddressEvent event) {
   if (event.oldAddress != null &&
@@ -37,7 +38,7 @@ monitor.startWatching().listen((PublicAddressEvent event) {
 
 ### Updating a dyndns.org entry:
 
-```
+```dart
 Dyndns2Updater updater = new Dyndns2Updater(
   username: yourUsername,
   password: yourPassword,
