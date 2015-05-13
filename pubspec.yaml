@@ -11,3 +11,4 @@ dependencies:
   logging: ">=0.9.1 <0.10.0"
 dev_dependencies:
   unittest: ">=0.11.4 <0.12.0"
+  grinder: '>=0.7.0 <0.8.0'
