@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:ddns_client/public_address.dart';
-import 'package:matcher/matcher.dart';
 
 /// A mock [PublicAddressWebsite] for testing
 /// which only implements [requestAddress] and always returns
@@ -20,10 +19,9 @@ class MockPublicAddressWebsite implements PublicAddressWebsite {
 
   @override
   Future<InternetAddress> get requestAddress {
-    expect(
-        addressTextFromWebsite,
-        isNotNull,
-        reason: 'must set addressFromWebsite first');
+    if (addressTextFromWebsite == null) {
+      throw 'must set addressFromWebsite first';
+    }
     return new Future.value(new InternetAddress(addressTextFromWebsite));
   }
 
