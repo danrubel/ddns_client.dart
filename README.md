@@ -1,6 +1,9 @@
 Dart library for checking the public internet address
 and updating a dynamic dns entry.
 
+[![pub package](https://img.shields.io/pub/v/ddns_client.svg)](https://pub.dartlang.org/packages/ddns_client)
+[![Build Status](https://travis-ci.org/danrubel/dart_ddns_client.svg?branch=master)](https://travis-ci.org/danrubel/dart_ddns_client)
+
 ## Overview
 
  * __[PublicAddressMonitor](lib/public_address.dart)__ 

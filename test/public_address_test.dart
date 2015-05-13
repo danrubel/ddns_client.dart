@@ -151,7 +151,7 @@ main([List<String> args]) {
         try {
           website.processResponse(response);
           fail('expected exception');
-        } on PublicAddressException catch (e) {
+        } on PublicAddressException {
           // Expect exception
         }
       });

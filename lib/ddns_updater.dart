@@ -8,7 +8,7 @@ const String ddnsClientName = 'dart_ddns_client';
 const String ddnsClientVersion = '0.8.0';
 
 /**
- * [DynamicDNSUpdater] is a base class for updating a dynamic DNS server
+ * [DynamicDNSUpdater] is a base class for interacting with a dynamic DNS server
  * such as dyndns.org. This was inspired by python-dyndnsc...
  * https://github.com/infothrill/python-dyndnsc/blob/develop/dyndnsc/updater/dyndns2.py
  */
