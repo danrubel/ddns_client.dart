@@ -3,7 +3,7 @@ and updating a dynamic dns entry.
 
 [![pub package](https://img.shields.io/pub/v/ddns_client.svg)](https://pub.dartlang.org/packages/ddns_client)
 [![Build Status](https://travis-ci.org/danrubel/dart_ddns_client.svg?branch=master)](https://travis-ci.org/danrubel/dart_ddns_client)
-[![Coverage Status](https://img.shields.io/coveralls/danrubel/ddns_client.svg)](https://coveralls.io/r/danrubel/ddns_client)
+[![Coverage Status](https://coveralls.io/repos/danrubel/dart_ddns_client/badge.svg)](https://coveralls.io/r/danrubel/dart_ddns_client)
 
 
 ## Overview

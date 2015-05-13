@@ -16,6 +16,7 @@ void buildbot() => null;
 @Task('Gather and send coverage data.')
 void coverage() {
   final String coverageToken = Platform.environment['TRAVIS'];
+  print('coverageToken = $coverageToken');
 
   if (coverageToken != null) {
     PubApp coverallsApp = new PubApp.global('dart_coveralls');
