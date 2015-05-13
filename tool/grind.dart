@@ -15,7 +15,7 @@ void buildbot() => null;
 
 @Task('Gather and send coverage data.')
 void coverage() {
-  final String coverageToken = Platform.environment['TRAVIS_REPO_SLUG'];
+  final String coverageToken = Platform.environment['REPO_TOKEN'];
   if (coverageToken != null) {
     PubApp coverallsApp = new PubApp.global('dart_coveralls');
     coverallsApp.run([
@@ -26,7 +26,7 @@ void coverage() {
       'test/all.dart'
     ]);
   } else {
-    log('Skipping coverage task: no environment variable `TRAVIS` found.');
+    log('Skipping coverage task: no environment variable `REPO_TOKEN` found.');
   }
 }
 
