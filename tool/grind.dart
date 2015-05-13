@@ -16,13 +16,21 @@ void buildbot() => null;
 @Task('Gather and send coverage data.')
 void coverage() {
   final String coverageToken = Platform.environment['TRAVIS'];
-  print('coverageToken = $coverageToken');
+
+  Platform.environment.keys.toList()
+    ..sort()
+    ..forEach((String key) {
+      print('$key = ${Platform.environment[key]}');
+    });
 
   if (coverageToken != null) {
     PubApp coverallsApp = new PubApp.global('dart_coveralls');
-    coverallsApp.run(['report',
-      '--token', coverageToken,
-      '--retry', '2',
+    coverallsApp.run([
+      'report',
+      '--token',
+      coverageToken,
+      '--retry',
+      '2',
       '--exclude-test-files',
       'test/all.dart'
     ]);
