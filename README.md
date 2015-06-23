@@ -1,4 +1,4 @@
-# dart_ddns_client
+# ddns_client.dart
 
 A Dart library for checking the public internet address
 and updating a dynamic dns entry.
