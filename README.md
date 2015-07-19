@@ -4,7 +4,7 @@ A Dart library for checking the public internet address
 and updating a dynamic dns entry.
 
 [![pub package](https://img.shields.io/pub/v/ddns_client.svg)](https://pub.dartlang.org/packages/ddns_client)
-[![Build Status](https://travis-ci.org/danrubel/dart_ddns_client.svg?branch=master)](https://travis-ci.org/danrubel/dart_ddns_client)
+[![Build Status](https://travis-ci.org/danrubel/ddns_client.dart.svg?branch=master)](https://travis-ci.org/danrubel/ddns_client.dart)
 [![Coverage Status](https://coveralls.io/repos/danrubel/dart_ddns_client/badge.svg?branch=master)](https://coveralls.io/r/danrubel/dart_ddns_client?branch=master)
 
 ## Overview
