@@ -5,7 +5,7 @@ import 'dart:io';
 
 import 'package:ddns_client/mock/mock_public_address.dart';
 import 'package:ddns_client/public_address.dart';
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 main([List<String> args]) {
 

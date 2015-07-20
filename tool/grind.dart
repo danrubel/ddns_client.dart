@@ -6,7 +6,7 @@ main(args) => grind(args);
 
 @Task()
 void analyze() {
-  new PubApp.global('tuneup')..run(['check']);
+  Analyzer.analyze('.', fatalWarnings: true);
 }
 
 @DefaultTask()
@@ -32,5 +32,5 @@ void coverage() {
 
 @Task()
 void test() {
-  Tests.runCliTests();
+  new TestRunner().testAsync(files: 'test/all.dart');
 }
