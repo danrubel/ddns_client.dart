@@ -201,7 +201,9 @@ main([List<String> args]) {
         // Normally we don't want to test this for every website every time
         // the tests are run because the website may block our internet address.
         if (testAllWebsites) {
+          print('Request  : ${website.uri}');
           futures.add(website.requestAddress.then((InternetAddress address) {
+            print('Response : ${website.uri} : ${address}');
             results[website.uri] = address.address;
           }));
         }

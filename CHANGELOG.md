@@ -1,3 +1,7 @@
+## 0.8.2
+
+* Added additional ip addresses used for checking the local IP address
+
 ## 0.8.1
 
 * Rename repo to danrubel/ddns_client.dart

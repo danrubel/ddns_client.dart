@@ -72,6 +72,7 @@ class PublicAddressException implements Exception {
 ///
 /// with additional websites from
 /// http://stackoverflow.com/questions/3097589/getting-my-public-ip-via-api
+/// http://unix.stackexchange.com/questions/22615/how-can-i-get-my-external-ip-address-in-bash
 class PublicAddressMonitor {
 
   /// The current public internet address.
@@ -203,9 +204,8 @@ class PublicAddressWebsite {
   ///       curl: (7) Failed connect to ip.arix.com:80; Connection refused
   ///    ("http://jsonip.com/", _parser_jsonip),
   ///    host -t a dartsclink.com | sed 's/.*has address //'
-  ///    curl ifconfig.me # this has a lot of different alternatives too,
-  ///                       such as ifconfig.me/host
-  ///    curl -s ifconfig.me
+  ///    http://ifconfig.me/ip - works fine from browser, but not app
+  ///    http://corz.org/ip - periodically blocks
   ///
   static List<PublicAddressWebsite> websites = [
       new PublicAddressWebsite(
@@ -224,14 +224,26 @@ class PublicAddressWebsite {
           'http://checkip.dns.he.net',
           prefix: 'Your IP address is :',
           suffix: '</body>'),
-      new PublicAddressWebsite('http://corz.org/ip'),
+      new PublicAddressWebsite('http://bot.whatismyipaddress.com/'),
       new PublicAddressWebsite('http://curlmyip.com'),
       new PublicAddressWebsite('http://dynamic.zoneedit.com/checkip.html'),
+      new PublicAddressWebsite('http://eth0.me/'),
       new PublicAddressWebsite('http://icanhazip.com'),
+      new PublicAddressWebsite('http://ident.me/'),
+      new PublicAddressWebsite('http://ifcfg.me/ip'),
+      new PublicAddressWebsite('http://ip.appspot.com/'),
       new PublicAddressWebsite('http://ip.dnsexit.com'),
+      new PublicAddressWebsite('http://ip.tyk.nu/'),
+      new PublicAddressWebsite('http://ipecho.net/plain'),
       new PublicAddressWebsite('http://ipinfo.io/ip'),
+      new PublicAddressWebsite('http://ipof.in/txt'),
       new PublicAddressWebsite('http://ipv4.icanhazip.com'),
-      new PublicAddressWebsite('http://ipv4.nsupdate.info/myip')];
+      new PublicAddressWebsite('http://ipv4.nsupdate.info/myip'),
+      new PublicAddressWebsite('http://l2.io/ip'),
+      new PublicAddressWebsite('http://tnx.nl/ip'),
+      new PublicAddressWebsite('http://wgetip.com/'),
+      new PublicAddressWebsite('http://whatismyip.akamai.com/'),
+    ];
 
   /// The URL of the website used to check the public internet address.
   Uri uri;
