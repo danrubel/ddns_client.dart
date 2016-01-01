@@ -84,10 +84,98 @@ main() {
       });
     });
   });
+
+  group('GoogleDomainsUpdater', () {
+    GoogleDomainsTarget target;
+
+    setUp(() {
+      target = new GoogleDomainsTarget();
+    });
+
+    test('update', () {
+      target.hostname = 'testhostname.dyndns.org';
+      target.username = 'myusername';
+      target.password = 'mypassword';
+      target.mockResponseContents = 'good 1.2.3.4';
+      return target.update(
+          new InternetAddress('1.2.3.4')).then((UpdateResult result) {
+        expect(result.success, isTrue);
+        expect(result.statusCode, HttpStatus.OK);
+        expect(result.reasonPhrase, 'someReason');
+        expect(result.contents, 'good 1.2.3.4');
+        expect(result.addressText, '1.2.3.4');
+
+        MockClient client = target.mockClient;
+        Uri urlSent = client.urlSent;
+        expect(urlSent.scheme, 'https');
+        expect(urlSent.authority, 'myusername:mypassword@domains.google.com');
+        expect(urlSent.path, '/nic/update');
+        Map<String, String> param = urlSent.queryParameters;
+        expect(param['hostname'], equals('testhostname.dyndns.org'));
+        expect(param['myip'], equals('1.2.3.4'));
+        expect(param.length, 2);
+
+        MockRequest request = client.mockRequest;
+        List<String> userAgent = request.headers[HttpHeaders.USER_AGENT];
+        expect(userAgent, hasLength(1));
+        expect(userAgent[0], '$ddnsClientName/$ddnsClientVersion');
+
+        expect(client.credentialsUrl, equals(client.urlSent));
+        expect(client.credentialsRealm, 'realm');
+        expect(client.credentials, isNotNull);
+      });
+    });
+
+    test('response_good', () {
+      UpdateResult result = new UpdateResult();
+      target.processResponseContents(result, 'good 1.2.3.4');
+      expect(result.contents, 'good 1.2.3.4');
+      expect(result.success, isTrue);
+      expect(result.addressText, '1.2.3.4');
+    });
+
+    test('response_nochg', () {
+      UpdateResult result = new UpdateResult();
+      target.processResponseContents(result, 'nochg 5.2.3.4');
+      expect(result.contents, 'nochg 5.2.3.4');
+      expect(result.success, isNull);
+      expect(result.addressText, '5.2.3.4');
+    });
+
+    test('response_badauth', () {
+      UpdateResult result = new UpdateResult();
+      target.processResponseContents(result, 'badauth');
+      expect(result.contents, 'badauth');
+      expect(result.success, isFalse);
+      expect(result.addressText, isNull);
+    });
+
+    test('response_404', () {
+      MockResponse response = new MockResponse();
+      response.statusCode = HttpStatus.NOT_FOUND;
+      return target.processResponse(response).then((UpdateResult result) {
+        expect(result.statusCode, HttpStatus.NOT_FOUND);
+        expect(result.contents, isNull);
+        expect(result.success, isFalse);
+        expect(result.addressText, isNull);
+      });
+    });
+  });
 }
 
 /// Testable updater that does not contact the DDNS server
 class Dyndns2Target extends Dyndns2Updater {
+  String mockResponseContents;
+  MockClient mockClient = new MockClient();
+
+  HttpClient get httpClient {
+    mockClient.mockResponseContents = mockResponseContents;
+    return mockClient;
+  }
+}
+
+/// Testable updater that does not contact the DDNS server
+class GoogleDomainsTarget extends GoogleDomainsUpdater {
   String mockResponseContents;
   MockClient mockClient = new MockClient();
 

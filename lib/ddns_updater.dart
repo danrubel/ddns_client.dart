@@ -33,13 +33,9 @@ abstract class DynamicDNSUpdater {
   Future<UpdateResult> update(InternetAddress address);
 }
 
-/**
- * [Dyndns2Updater] updates dynamic DNS entries using dyndns2 protocol.
- * See http://dyn.com/support/developers/api/perform-update/
- */
-class Dyndns2Updater extends DynamicDNSUpdater {
+abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
 
-  Dyndns2Updater({String hostname, String username, String password})
+  _CommonDNSUpdater({String hostname, String username, String password})
       : super(hostname: hostname, username: username, password: password);
 
   /// Provide additional information for the request
@@ -84,6 +80,16 @@ class Dyndns2Updater extends DynamicDNSUpdater {
     result.success = false;
     result.addressText = null;
   }
+}
+
+/**
+ * [Dyndns2Updater] updates dynamic DNS entries using dyndns2 protocol.
+ * See http://dyn.com/support/developers/api/perform-update/
+ */
+class Dyndns2Updater extends _CommonDNSUpdater {
+
+  Dyndns2Updater({String hostname, String username, String password})
+      : super(hostname: hostname, username: username, password: password);
 
   @override
   Future<UpdateResult> update(InternetAddress address) {
@@ -95,6 +101,42 @@ class Dyndns2Updater extends DynamicDNSUpdater {
     }
     StringBuffer sb =
         new StringBuffer('https://members.dyndns.org/nic/update?hostname=');
+    sb.write(hostname);
+    sb.write('&myip=');
+    sb.write(address.address);
+    Uri uri = Uri.parse(sb.toString());
+    HttpClient client = httpClient;
+    client.addCredentials(
+        uri,
+        'realm',
+        new HttpClientBasicCredentials(username, password));
+    return client.getUrl(uri).then(processRequest).then(processResponse);
+  }
+}
+
+/**
+ * [GoogleDomainsUpdater] updates dynamic DNS records in Google Domains.
+ * See "Using the API to update your Dynamic DNS record"
+ * in https://support.google.com/domains/answer/6147083
+ */
+class GoogleDomainsUpdater extends _CommonDNSUpdater {
+
+  GoogleDomainsUpdater({String hostname, String username, String password})
+      : super(hostname: hostname, username: username, password: password);
+
+  @override
+  Future<UpdateResult> update(InternetAddress address) {
+    if (hostname == null) {
+      throw 'must set hostname';
+    }
+    if (username == null || password == null) {
+      throw 'must set username/password';
+    }
+    StringBuffer sb = new StringBuffer('https://');
+    sb.write(username);
+    sb.write(':');
+    sb.write(password);
+    sb.write('@domains.google.com/nic/update?hostname=');
     sb.write(hostname);
     sb.write('&myip=');
     sb.write(address.address);
