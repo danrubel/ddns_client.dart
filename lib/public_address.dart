@@ -305,7 +305,7 @@ class PublicAddressWebsite {
       return new InternetAddress(text);
     } on ArgumentError catch (e, s) {
       throw new PublicAddressException(
-          'Extracted invalid address: $text',
+          'Extracted invalid address: $text from: $contents',
           uri.toString(),
           exception: e,
           stackTrace: s);
@@ -336,9 +336,14 @@ class PublicAddressWebsite {
           statusCode: response.statusCode);
     }
     Completer<InternetAddress> completer = new Completer();
+    var buf = new StringBuffer();
     response.transform(UTF8.decoder).listen((String contents) {
+      buf.write(contents);
+    }, onDone: () {
       try {
-        completer.complete(extractAddress(contents));
+        if (!completer.isCompleted) {
+          completer.complete(extractAddress(buf.toString()));
+        }
       } catch (e, s) {
         if (!completer.isCompleted) {
           completer.completeError(

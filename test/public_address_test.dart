@@ -10,14 +10,28 @@ import 'package:test/test.dart';
 main([List<String> args]) {
 
   // Pass --testAllWebsites on the command line
-  // to test obtaining an public internet address for each website.
+  // to test obtaining a public internet address from each website.
   // If this is true and these tests run too frequently
   // then some websites may block this internet address
   // because we are calling them too frequently.
-  bool testAllWebsites =
-      args != null &&
-      args.length > 0 &&
-      args[0] == '--testAllWebsites';
+  bool testAllWebsites = false;
+
+  // Pass --testWebsite=<uri> on the command line
+  // to test obtaining a public internet address from a specific website
+  List<PublicAddressWebsite> testWebsites = [];
+
+  if (args != null) {
+    for (String arg in args) {
+      if (arg == '--testAllWebsites') testAllWebsites = true;
+      if (arg.startsWith('--testWebsite=')) {
+        var uri = arg.substring(14);
+        var website = PublicAddressWebsite.websites
+            .firstWhere((w) => w.uri.toString() == uri, orElse: () => null);
+        if (website == null) throw 'no such website defined: $uri';
+        testWebsites.add(website);
+      }
+    }
+  }
 
   group('PublicAddressMonitor', () {
 
@@ -167,6 +181,21 @@ main([List<String> args]) {
           expect(caughtException, isTrue);
         });
       });
+      test('slow/split response', () {
+        PublicAddressWebsite website =
+            new PublicAddressWebsite('http://does.not.exist');
+        MockResponse response = new MockResponse();
+        response.contents = '1';
+        response.contents2 = '.2.3.4';
+        bool caughtException = false;
+        return website.processResponse(response).catchError((e, s) {
+          caughtException = true;
+          print('$e\n$s');
+        }).then((InternetAddress address) {
+          expect(caughtException, isFalse);
+          expect(address.address, '1.2.3.4');
+        });
+      });
       test('success', () {
         PublicAddressWebsite website =
             new PublicAddressWebsite('http://does.not.exist');
@@ -194,6 +223,8 @@ main([List<String> args]) {
 
       List<Future> futures = <Future>[];
       Map<Uri, String> results = <Uri, String>{};
+
+      // Validate all websites
       websites.forEach((PublicAddressWebsite website) {
         expect(website, isNotNull);
         expect(website.uri, isNotNull);
@@ -207,6 +238,17 @@ main([List<String> args]) {
             results[website.uri] = address.address;
           }));
         }
+      });
+
+      // Test some websites.
+      // Normally we don't want to test this for a specific website every time
+      // the tests are run because the website may block our internet address.
+      testWebsites.forEach((PublicAddressWebsite website) {
+        print('Request  : ${website.uri}');
+        futures.add(website.requestAddress.then((InternetAddress address) {
+          print('Response : ${website.uri} : ${address}');
+          results[website.uri] = address.address;
+        }));
       });
 
       // Wait for the results, then compare
@@ -262,7 +304,8 @@ Future _pumpEventQueue([int times = 20]) {
 /// Mock response for testing
 class MockResponse implements HttpClientResponse {
   int statusCode = HttpStatus.OK;
-  String contents = null;
+  String contents;
+  String contents2;
 
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
@@ -271,6 +314,7 @@ class MockResponse implements HttpClientResponse {
     StreamController<String> controller = new StreamController<String>();
     new Future.microtask(() {
       controller.add(contents);
+      if (contents2 != null) controller.add(contents2);
       controller.close();
     });
     return controller.stream;
