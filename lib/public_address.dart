@@ -264,7 +264,17 @@ class PublicAddressWebsite {
 
   /// Determine the current public internet address.
   Future<InternetAddress> get requestAddress {
-    return httpClient.getUrl(uri).then(processRequest).then(processResponse);
+    var timeout = new Duration(seconds: 9);
+    return httpClient.getUrl(uri)
+        .then(processRequest)
+        .timeout(timeout)
+        .then(processResponse)
+        .catchError((e) {
+          throw new PublicAddressException(
+            'No response within $timeout',
+            uri.toString(),
+            exception: e);
+        }, test: (e) => e is TimeoutException);
   }
 
   /// Extract the internet address from the response
@@ -329,21 +339,24 @@ class PublicAddressWebsite {
       try {
         completer.complete(extractAddress(contents));
       } catch (e, s) {
-        completer.completeError(
+        if (!completer.isCompleted) {
+          completer.completeError(
             new PublicAddressException(
-                'Response processing failed',
-                uri.toString(),
-                exception: e,
-                stackTrace: s));
-        return;
-      }
-    }, onError: (e, s) {
-      completer.completeError(
-          throw new PublicAddressException(
-              'Response transform failed',
+              'Response processing failed',
               uri.toString(),
               exception: e,
               stackTrace: s));
+        }
+      }
+    }, onError: (e, s) {
+      if (!completer.isCompleted) {
+        completer.completeError(
+          throw new PublicAddressException(
+            'Response transform failed',
+            uri.toString(),
+            exception: e,
+            stackTrace: s));
+      }
     });
     return completer.future;
   }
