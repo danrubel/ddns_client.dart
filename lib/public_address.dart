@@ -226,6 +226,7 @@ class PublicAddressWebsite {
           suffix: '</body>'),
       new PublicAddressWebsite('http://bot.whatismyipaddress.com/'),
       new PublicAddressWebsite('http://curlmyip.com'),
+      new PublicAddressWebsite('https://domains.google.com/checkip'),
       new PublicAddressWebsite('http://dynamic.zoneedit.com/checkip.html'),
       new PublicAddressWebsite('http://eth0.me/'),
       new PublicAddressWebsite('http://icanhazip.com'),
