@@ -2,6 +2,7 @@
 
 * Added additional ip addresses used for checking the local IP address
 * Added request timeout and enhanced response processing guard code
+* Added GoogleDomainUpdater for updating dynamic DNS records in Google Domains
 
 ## 0.8.1
 
