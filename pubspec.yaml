@@ -6,7 +6,7 @@ description: >
 author: Dan Rubel <danrubel@google.com>
 homepage: https://github.com/danrubel/ddns_client.dart
 environment:
-  sdk: '>=1.0.0 <2.0.0'
+  sdk: '>=2.7.1 <3.0.0'
 dependencies:
   logging: ">=0.9.1 <0.10.0"
 dev_dependencies:
