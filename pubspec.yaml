@@ -12,3 +12,4 @@ dependencies:
 dev_dependencies:
   grinder: ^0.8.5
   test: ^1.15.3
+  yaml: ^3.1.0
