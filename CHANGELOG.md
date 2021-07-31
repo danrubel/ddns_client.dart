@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Cleanup analyzer errors/warnings
+
 ## 0.8.2
 
 * Added additional ip addresses used for checking the local IP address
