@@ -33,7 +33,7 @@ class MockDynamicDNSUpdater implements DynamicDNSUpdater {
     return new Future(() {
       UpdateResult result = new UpdateResult();
       result.success = true;
-      result.statusCode = HttpStatus.OK;
+      result.statusCode = HttpStatus.ok;
       result.reasonPhrase = 'a reason';
       result.addressText = address.address;
       result.contents = 'content returned by ddns website';

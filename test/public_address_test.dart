@@ -161,7 +161,7 @@ main([List<String> args]) {
         PublicAddressWebsite website =
             new PublicAddressWebsite('http://does.not.exist');
         MockResponse response = new MockResponse();
-        response.statusCode = HttpStatus.GATEWAY_TIMEOUT;
+        response.statusCode = HttpStatus.gatewayTimeout;
         try {
           website.processResponse(response);
           fail('expected exception');
@@ -298,23 +298,24 @@ Future _pumpEventQueue([int times = 20]) {
   // Future.value or Future() constructors use scheduleMicrotask themselves and
   // would therefore not wait for microtask callbacks that are scheduled after
   // invoking this method.
-  return new Future.delayed(Duration.ZERO, () => _pumpEventQueue(times - 1));
+  return new Future.delayed(Duration.zero, () => _pumpEventQueue(times - 1));
 }
 
 /// Mock response for testing
 class MockResponse implements HttpClientResponse {
-  int statusCode = HttpStatus.OK;
+  int statusCode = HttpStatus.ok;
   String contents;
   String contents2;
 
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   @override
-  Stream transform(StreamTransformer<List<int>, dynamic> transformer) {
+  Stream<String> transform<String>(
+      StreamTransformer<List<int>, String> transformer) {
     StreamController<String> controller = new StreamController<String>();
     new Future.microtask(() {
-      controller.add(contents);
-      if (contents2 != null) controller.add(contents2);
+      controller.add(contents as String);
+      if (contents2 != null) controller.add(contents2 as String);
       controller.close();
     });
     return controller.stream;

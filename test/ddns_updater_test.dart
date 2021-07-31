@@ -23,7 +23,7 @@ main() {
       return target.update(
           new InternetAddress('1.2.3.4')).then((UpdateResult result) {
         expect(result.success, isTrue);
-        expect(result.statusCode, HttpStatus.OK);
+        expect(result.statusCode, HttpStatus.ok);
         expect(result.reasonPhrase, 'someReason');
         expect(result.contents, 'good 1.2.3.4');
         expect(result.addressText, '1.2.3.4');
@@ -39,7 +39,7 @@ main() {
         expect(param.length, 2);
 
         MockRequest request = client.mockRequest;
-        List<String> userAgent = request.headers[HttpHeaders.USER_AGENT];
+        List<String> userAgent = request.headers[HttpHeaders.userAgentHeader];
         expect(userAgent, hasLength(1));
         expect(userAgent[0], '$ddnsClientName/$ddnsClientVersion');
 
@@ -75,9 +75,9 @@ main() {
 
     test('response_404', () {
       MockResponse response = new MockResponse();
-      response.statusCode = HttpStatus.NOT_FOUND;
+      response.statusCode = HttpStatus.notFound;
       return target.processResponse(response).then((UpdateResult result) {
-        expect(result.statusCode, HttpStatus.NOT_FOUND);
+        expect(result.statusCode, HttpStatus.notFound);
         expect(result.contents, isNull);
         expect(result.success, isFalse);
         expect(result.addressText, isNull);
@@ -100,7 +100,7 @@ main() {
       return target.update(
           new InternetAddress('1.2.3.4')).then((UpdateResult result) {
         expect(result.success, isTrue);
-        expect(result.statusCode, HttpStatus.OK);
+        expect(result.statusCode, HttpStatus.ok);
         expect(result.reasonPhrase, 'someReason');
         expect(result.contents, 'good 1.2.3.4');
         expect(result.addressText, '1.2.3.4');
@@ -116,7 +116,7 @@ main() {
         expect(param.length, 2);
 
         MockRequest request = client.mockRequest;
-        List<String> userAgent = request.headers[HttpHeaders.USER_AGENT];
+        List<String> userAgent = request.headers[HttpHeaders.userAgentHeader];
         expect(userAgent, hasLength(1));
         expect(userAgent[0], '$ddnsClientName/$ddnsClientVersion');
 
@@ -152,9 +152,9 @@ main() {
 
     test('response_404', () {
       MockResponse response = new MockResponse();
-      response.statusCode = HttpStatus.NOT_FOUND;
+      response.statusCode = HttpStatus.notFound;
       return target.processResponse(response).then((UpdateResult result) {
-        expect(result.statusCode, HttpStatus.NOT_FOUND);
+        expect(result.statusCode, HttpStatus.notFound);
         expect(result.contents, isNull);
         expect(result.success, isFalse);
         expect(result.addressText, isNull);
@@ -227,7 +227,7 @@ class MockHeaders extends HttpHeaders {
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   @override
-  void set(String name, Object value) {
+  void set(String name, Object value, {bool preserveHeaderCase = false}) {
     valueMap[name] = [value];
   }
 }
@@ -250,19 +250,20 @@ class MockRequest implements HttpClientRequest {
 }
 
 class MockResponse implements HttpClientResponse {
-  int statusCode = HttpStatus.OK;
+  int statusCode = HttpStatus.ok;
   String reasonPhrase = 'someReason';
   String mockResponseContents;
 
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   @override
-  Stream transform(StreamTransformer<List<int>, dynamic> streamTransformer) {
+  Stream<String> transform<String>(
+      StreamTransformer<List<int>, String> streamTransformer) {
     expect(mockResponseContents, isNotNull);
-    expect(streamTransformer.runtimeType, equals(UTF8.decoder.runtimeType));
-    StreamController<String> controller = new StreamController<String>();
+    expect(streamTransformer.runtimeType, equals(utf8.decoder.runtimeType));
+    var controller = new StreamController<String>();
     new Future(() {
-      controller.add(mockResponseContents);
+      controller.add(mockResponseContents as String);
     });
     return controller.stream;
   }

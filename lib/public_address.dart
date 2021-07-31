@@ -321,10 +321,10 @@ class PublicAddressWebsite {
 
   /// Extract the public internet address from the response
   Future<InternetAddress> processResponse(HttpClientResponse response) {
-    if (response.statusCode != HttpStatus.OK) {
+    if (response.statusCode != HttpStatus.ok) {
       String errMsg = 'Request failed';
       // If the website refused to answer, then remove it from the list
-      if (response.statusCode == HttpStatus.FORBIDDEN) {
+      if (response.statusCode == HttpStatus.forbidden) {
         websites.remove(this);
         errMsg =
             'Website returned 403 and was removed from the list.'
@@ -337,7 +337,7 @@ class PublicAddressWebsite {
     }
     Completer<InternetAddress> completer = new Completer();
     var buf = new StringBuffer();
-    response.transform(UTF8.decoder).listen((String contents) {
+    response.transform(utf8.decoder).listen((String contents) {
       buf.write(contents);
     }, onDone: () {
       try {

@@ -41,7 +41,7 @@ abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
   /// Provide additional information for the request
   Future<HttpClientResponse> processRequest(HttpClientRequest request) {
     request.headers.set(
-        HttpHeaders.USER_AGENT,
+        HttpHeaders.userAgentHeader,
         '$ddnsClientName/$ddnsClientVersion');
     // Optionally set up headers...
     // Optionally write to the request object...
@@ -53,12 +53,12 @@ abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
     result.timestamp = new DateTime.now();
     result.statusCode = response.statusCode;
     result.reasonPhrase = response.reasonPhrase;
-    if (result.statusCode != HttpStatus.OK) {
+    if (result.statusCode != HttpStatus.ok) {
       result.success = false;
       return new Future.value(result);
     }
     Completer<UpdateResult> completer = new Completer();
-    response.transform(UTF8.decoder).listen((String contents) {
+    response.transform(utf8.decoder).listen((String contents) {
       processResponseContents(result, contents);
       completer.complete(result);
     });
