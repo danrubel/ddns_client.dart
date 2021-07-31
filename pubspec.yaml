@@ -3,7 +3,6 @@ version: 1.0.1
 description: >
   A library for checking the public internet address
   and updating a dynamic DNS entry.
-author: Dan Rubel <danrubel@google.com>
 homepage: https://github.com/danrubel/ddns_client.dart
 environment:
   sdk: '>=2.8.4 <3.0.0'
