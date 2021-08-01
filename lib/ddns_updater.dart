@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 const String ddnsClientName = 'dart_ddns_client';
-const String ddnsClientVersion = '1.0.2';
+const String ddnsClientVersion = '2.0.0';
 
 /**
  * [DynamicDNSUpdater] is a base class for interacting with a dynamic DNS server
@@ -22,7 +22,7 @@ abstract class DynamicDNSUpdater {
   /// The password for the account containing dynamic dns entry
   String password;
 
-  DynamicDNSUpdater({this.hostname, this.username, this.password});
+  DynamicDNSUpdater({required this.hostname, required this.username, required this.password});
 
   /// Return a new client for updating the dynamic DNS server
   HttpClient get httpClient => new HttpClient();
@@ -33,7 +33,7 @@ abstract class DynamicDNSUpdater {
 }
 
 abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
-  _CommonDNSUpdater({String hostname, String username, String password})
+  _CommonDNSUpdater({required String hostname, required String username, required String password})
       : super(hostname: hostname, username: username, password: password);
 
   /// Provide additional information for the request
@@ -69,27 +69,29 @@ abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
   }
 
   UpdateResult processResponseContents({
-    int statusCode,
-    String reasonPhrase,
-    String contents,
+    int? statusCode,
+    String? reasonPhrase,
+    String? contents,
   }) {
-    if (contents.startsWith('good ')) {
-      return UpdateResult(
-        success: true,
-        statusCode: statusCode,
-        reasonPhrase: reasonPhrase,
-        addressText: contents.substring(5).trim(),
-        contents: contents,
-      );
-    }
-    if (contents.startsWith('nochg ')) {
-      return UpdateResult(
-        success: null,
-        statusCode: statusCode,
-        reasonPhrase: reasonPhrase,
-        addressText: contents.substring(6).trim(),
-        contents: contents,
-      );
+    if (contents != null) {
+      if (contents.startsWith('good ')) {
+        return UpdateResult(
+          success: true,
+          statusCode: statusCode,
+          reasonPhrase: reasonPhrase,
+          addressText: contents.substring(5).trim(),
+          contents: contents,
+        );
+      }
+      if (contents.startsWith('nochg ')) {
+        return UpdateResult(
+          success: null,
+          statusCode: statusCode,
+          reasonPhrase: reasonPhrase,
+          addressText: contents.substring(6).trim(),
+          contents: contents,
+        );
+      }
     }
     return UpdateResult(
       success: false,
@@ -106,17 +108,11 @@ abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
  * See http://dyn.com/support/developers/api/perform-update/
  */
 class Dyndns2Updater extends _CommonDNSUpdater {
-  Dyndns2Updater({String hostname, String username, String password})
+  Dyndns2Updater({required String hostname, required String username, required String password})
       : super(hostname: hostname, username: username, password: password);
 
   @override
   Future<UpdateResult> update(InternetAddress address) {
-    if (hostname == null) {
-      throw 'must set hostname';
-    }
-    if (username == null || password == null) {
-      throw 'must set username/password';
-    }
     StringBuffer buf = new StringBuffer()
       ..write('https://members.dyndns.org/nic/update?hostname=')
       ..write(hostname)
@@ -136,17 +132,11 @@ class Dyndns2Updater extends _CommonDNSUpdater {
  * in https://support.google.com/domains/answer/6147083
  */
 class GoogleDomainsUpdater extends _CommonDNSUpdater {
-  GoogleDomainsUpdater({String hostname, String username, String password})
+  GoogleDomainsUpdater({required String hostname, required String username, required String password})
       : super(hostname: hostname, username: username, password: password);
 
   @override
   Future<UpdateResult> update(InternetAddress address) {
-    if (hostname == null) {
-      throw 'must set hostname';
-    }
-    if (username == null || password == null) {
-      throw 'must set username/password';
-    }
     StringBuffer buf = new StringBuffer()
       ..write('https://')
       ..write(username)
@@ -171,19 +161,19 @@ class GoogleDomainsUpdater extends _CommonDNSUpdater {
 class UpdateResult {
   /// `true` if the update succeeded, `false` if the update failed
   /// or `null` if the server was already updated to the given internet address.
-  final bool success;
+  final bool? success;
 
   /// The http status code
-  final int statusCode;
+  final int? statusCode;
 
   /// The reason phrase associated with the status code.
-  final String reasonPhrase;
+  final String? reasonPhrase;
 
   /// The unvalidated address text returned by the server or `null` if none
-  final String addressText;
+  final String? addressText;
 
   /// The content message returned by the server if any.
-  final String contents;
+  final String? contents;
 
   /// When the result was received and processed.
   final DateTime timestamp;

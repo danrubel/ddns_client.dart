@@ -1,5 +1,6 @@
 ## 2.0.0
 
+* Update for null-safety
 * Make UpdateResult fields final
 * Make PublicAddressWebsite.uri field final
 * Update list of public websites

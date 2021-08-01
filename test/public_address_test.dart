@@ -3,11 +3,12 @@ library test.public.address.monitor;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collection/collection.dart' show IterableExtension;
 import 'package:ddns_client/mock/mock_public_address.dart';
 import 'package:ddns_client/public_address.dart';
 import 'package:test/test.dart';
 
-main([List<String> args]) {
+main([List<String>? args]) {
   // Pass --testAllWebsites on the command line
   // to test obtaining a public internet address from each website.
   // If this is true and these tests run too frequently
@@ -25,7 +26,7 @@ main([List<String> args]) {
       if (arg.startsWith('--testWebsite=')) {
         var uri = arg.substring(14);
         var website = PublicAddressWebsite.websites
-            .firstWhere((w) => w.uri.toString() == uri, orElse: () => null);
+            .firstWhereOrNull((w) => w.uri.toString() == uri);
         if (website == null) throw 'no such website defined: $uri';
         testWebsites.add(website);
       }
@@ -34,7 +35,7 @@ main([List<String> args]) {
 
   group('PublicAddressMonitor', () {
     group('checkAddress', () {
-      PublicAddressMonitor monitor;
+      late PublicAddressMonitor monitor;
 
       setUp(() {
         monitor =
@@ -45,26 +46,26 @@ main([List<String> args]) {
         MockPublicAddressWebsite.addressTextFromWebsite = '1.2.3.4';
         expect(monitor.address, isNull);
         expect(await monitor.checkAddress(), isTrue);
-        expect(monitor.address.address, '1.2.3.4');
+        expect(monitor.address!.address, '1.2.3.4');
       });
 
       test('address same', () async {
         MockPublicAddressWebsite.addressTextFromWebsite = '1.2.3.4';
         monitor.address = new InternetAddress('1.2.3.4');
         expect(await monitor.checkAddress(), isFalse);
-        expect(monitor.address.address, '1.2.3.4');
+        expect(monitor.address!.address, '1.2.3.4');
       });
 
       test('address different', () async {
         MockPublicAddressWebsite.addressTextFromWebsite = '1.2.3.4';
         monitor.address = new InternetAddress('4.3.2.1');
         expect(await monitor.checkAddress(), isTrue);
-        expect(monitor.address.address, '1.2.3.4');
+        expect(monitor.address!.address, '1.2.3.4');
       });
     });
 
     group('startWatching', () {
-      PublicAddressMonitor monitor;
+      late PublicAddressMonitor monitor;
 
       setUp(() {
         monitor =
@@ -81,7 +82,7 @@ main([List<String> args]) {
         expect(monitor.address, isNull);
         Completer completer = new Completer();
         monitor
-            .startWatching(duration: const Duration(milliseconds: 2))
+            .startWatching(duration: const Duration(milliseconds: 2))!
             .listen((PublicAddressEvent event) {
           print('unexpected event: ${event.oldAddress}, ${event.newAddress}');
           completer.complete();
@@ -99,7 +100,7 @@ main([List<String> args]) {
         MockPublicAddressWebsite.addressTextFromWebsite = '1.2.3.4';
         expect(monitor.address, isNull);
         Completer completer = new Completer();
-        monitor.startWatching().listen((PublicAddressEvent event) {
+        monitor.startWatching()!.listen((PublicAddressEvent event) {
           expect(event.oldAddress, isNull);
           expect(event.newAddress.address, '1.2.3.4');
           completer.complete();
@@ -112,7 +113,7 @@ main([List<String> args]) {
         monitor.address = new InternetAddress('1.2.3.4');
         Completer completer = new Completer();
         monitor
-            .startWatching(duration: const Duration(milliseconds: 2))
+            .startWatching(duration: const Duration(milliseconds: 2))!
             .listen((PublicAddressEvent event) {
           print('unexpected event: ${event.oldAddress}, ${event.newAddress}');
           completer.complete();
@@ -123,15 +124,15 @@ main([List<String> args]) {
         });
         expect(completer.isCompleted, isFalse,
             reason: 'should not send event if address is the same');
-        expect(monitor.address.address, '1.2.3.4');
+        expect(monitor.address!.address, '1.2.3.4');
       });
 
       test('address different', () async {
         MockPublicAddressWebsite.addressTextFromWebsite = '5.6.7.8';
         monitor.address = new InternetAddress('1.2.3.4');
         Completer completer = new Completer();
-        monitor.startWatching().listen((PublicAddressEvent event) {
-          expect(event.oldAddress.address, '1.2.3.4');
+        monitor.startWatching()!.listen((PublicAddressEvent event) {
+          expect(event.oldAddress!.address, '1.2.3.4');
           expect(event.newAddress.address, '5.6.7.8');
           completer.complete();
         });
@@ -142,7 +143,7 @@ main([List<String> args]) {
         MockPublicAddressWebsite.addressTextFromWebsite = '1.2.3.4';
         monitor.address = null;
         int eventCount = 0;
-        monitor.startWatching().listen((PublicAddressEvent event) {
+        monitor.startWatching()!.listen((PublicAddressEvent event) {
           ++eventCount;
         });
         // initial event
@@ -181,57 +182,58 @@ main([List<String> args]) {
     });
 
     group('processResponse', () {
-      test('bad status code', () {
+      test('bad status code', () async {
         PublicAddressWebsite website =
             new PublicAddressWebsite('http://does.not.exist');
         MockResponse response = new MockResponse();
         response.statusCode = HttpStatus.gatewayTimeout;
         try {
-          website.processResponse(response);
-          fail('expected exception');
-        } on PublicAddressException {
-          // Expect exception
+          await website.processResponse(response);
+          fail('PublicAddressException exception');
+        } on PublicAddressException catch (error) {
+          // expected
         }
       });
-      test('invalid address', () {
+      test('forbidden', () async {
+        PublicAddressWebsite website =
+            new PublicAddressWebsite('http://does.not.exist');
+        MockResponse response = new MockResponse();
+        response.statusCode = HttpStatus.forbidden;
+        try {
+          await website.processResponse(response);
+          fail('PublicAddressException exception');
+        } on PublicAddressException catch (error) {
+          // expected
+        }
+      });
+      test('invalid address', () async {
         PublicAddressWebsite website =
             new PublicAddressWebsite('http://does.not.exist');
         MockResponse response = new MockResponse();
         response.contents = '1.2.3.4.invalid.address';
-        bool caughtException = false;
-        return website.processResponse(response).catchError((e, s) {
-          caughtException = true;
-        }).then((_) {
-          expect(caughtException, isTrue);
-        });
+        try {
+          await website.processResponse(response);
+          fail('PublicAddressException expected');
+        } on PublicAddressException catch (error) {
+          // expected
+        }
       });
-      test('slow/split response', () {
+      test('slow/split response', () async {
         PublicAddressWebsite website =
             new PublicAddressWebsite('http://does.not.exist');
         MockResponse response = new MockResponse();
         response.contents = '1';
         response.contents2 = '.2.3.4';
-        bool caughtException = false;
-        return website.processResponse(response).catchError((e, s) {
-          caughtException = true;
-          print('$e\n$s');
-        }).then((InternetAddress address) {
-          expect(caughtException, isFalse);
-          expect(address.address, '1.2.3.4');
-        });
+        var address = await website.processResponse(response);
+        expect(address.address, '1.2.3.4');
       });
-      test('success', () {
+      test('success', () async {
         PublicAddressWebsite website =
             new PublicAddressWebsite('http://does.not.exist');
         MockResponse response = new MockResponse();
         response.contents = '1.2.3.4';
-        bool caughtException = false;
-        return website.processResponse(response).catchError((e, s) {
-          caughtException = true;
-        }).then((InternetAddress address) {
-          expect(caughtException, isFalse);
-          expect(address.address, '1.2.3.4');
-        });
+        var address = await website.processResponse(response);
+        expect(address.address, '1.2.3.4');
       });
     });
 
@@ -257,9 +259,9 @@ main([List<String> args]) {
         // the tests are run because the website may block our internet address.
         if (testAllWebsites) {
           print('Request  : ${website.uri}');
-          futures.add(website.requestAddress.then((InternetAddress address) {
+          futures.add(website.requestAddress.then((InternetAddress? address) {
             print('Response : ${website.uri} : ${address}');
-            results[website.uri] = address.address;
+            results[website.uri] = address!.address;
           }));
         }
       });
@@ -269,16 +271,16 @@ main([List<String> args]) {
       // the tests are run because the website may block our internet address.
       testWebsites.forEach((PublicAddressWebsite website) {
         print('Request  : ${website.uri}');
-        futures.add(website.requestAddress.then((InternetAddress address) {
+        futures.add(website.requestAddress.then((InternetAddress? address) {
           print('Response : ${website.uri} : ${address}');
-          results[website.uri] = address.address;
+          results[website.uri] = address!.address;
         }));
       });
 
       // Wait for the results, then compare
       return Future.wait(futures).then((_) {
         bool same = true;
-        String expectedAddress = null;
+        String? expectedAddress = null;
         results.forEach((Uri uri, String address) {
           if (expectedAddress == null) {
             expectedAddress = address;
@@ -328,15 +330,15 @@ Future _pumpEventQueue([int times = 20]) {
 /// Mock response for testing
 class MockResponse implements HttpClientResponse {
   int statusCode = HttpStatus.ok;
-  String contents;
-  String contents2;
+  String? contents;
+  String? contents2;
 
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
   @override
   Stream<String> transform<String>(
       StreamTransformer<List<int>, String> transformer) {
-    StreamController<String> controller = new StreamController<String>();
+    var controller = new StreamController<String>();
     new Future.microtask(() {
       controller.add(contents as String);
       if (contents2 != null) controller.add(contents2 as String);
@@ -348,7 +350,7 @@ class MockResponse implements HttpClientResponse {
 
 class MockPublicAddressWebsiteReturnsNull extends MockPublicAddressWebsite {
   @override
-  Future<InternetAddress> get requestAddress => Future(null);
+  Future<InternetAddress?> get requestAddress async => null;
 
   /// Return a new webiste that will return [addressTextFromWebsite].
   static PublicAddressWebsite randomWebsite() {

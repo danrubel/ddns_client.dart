@@ -9,16 +9,13 @@ import 'package:test/test.dart';
 
 main() {
   group('Dyndns2Updater', () {
-    Dyndns2Target target;
+    late Dyndns2Target target;
 
     setUp(() {
       target = new Dyndns2Target();
     });
 
     test('update', () {
-      target.hostname = 'testhostname.dyndns.org';
-      target.username = 'myusername';
-      target.password = 'mypassword';
       target.mockResponseContents = 'good 1.2.3.4';
       return target
           .update(new InternetAddress('1.2.3.4'))
@@ -30,17 +27,17 @@ main() {
         expect(result.addressText, '1.2.3.4');
 
         MockClient client = target.mockClient;
-        Uri urlSent = client.urlSent;
+        Uri urlSent = client.urlSent!;
         expect(urlSent.scheme, 'https');
         expect(urlSent.authority, 'members.dyndns.org');
         expect(urlSent.path, '/nic/update');
         Map<String, String> param = urlSent.queryParameters;
-        expect(param['hostname'], equals('testhostname.dyndns.org'));
+        expect(param['hostname'], equals('testhostname.example.org'));
         expect(param['myip'], equals('1.2.3.4'));
         expect(param.length, 2);
 
-        MockRequest request = client.mockRequest;
-        List<String> userAgent = request.headers[HttpHeaders.userAgentHeader];
+        MockRequest request = client.mockRequest!;
+        List<String> userAgent = request.headers[HttpHeaders.userAgentHeader]!;
         expect(userAgent, hasLength(1));
         expect(userAgent[0], '$ddnsClientName/$ddnsClientVersion');
 
@@ -93,16 +90,13 @@ main() {
   });
 
   group('GoogleDomainsUpdater', () {
-    GoogleDomainsTarget target;
+    late GoogleDomainsTarget target;
 
     setUp(() {
       target = new GoogleDomainsTarget();
     });
 
     test('update', () {
-      target.hostname = 'testhostname.dyndns.org';
-      target.username = 'myusername';
-      target.password = 'mypassword';
       target.mockResponseContents = 'good 1.2.3.4';
       return target
           .update(new InternetAddress('1.2.3.4'))
@@ -114,17 +108,17 @@ main() {
         expect(result.addressText, '1.2.3.4');
 
         MockClient client = target.mockClient;
-        Uri urlSent = client.urlSent;
+        Uri urlSent = client.urlSent!;
         expect(urlSent.scheme, 'https');
         expect(urlSent.authority, 'myusername:mypassword@domains.google.com');
         expect(urlSent.path, '/nic/update');
         Map<String, String> param = urlSent.queryParameters;
-        expect(param['hostname'], equals('testhostname.dyndns.org'));
+        expect(param['hostname'], equals('testhostname.example.org'));
         expect(param['myip'], equals('1.2.3.4'));
         expect(param.length, 2);
 
-        MockRequest request = client.mockRequest;
-        List<String> userAgent = request.headers[HttpHeaders.userAgentHeader];
+        MockRequest request = client.mockRequest!;
+        List<String> userAgent = request.headers[HttpHeaders.userAgentHeader]!;
         expect(userAgent, hasLength(1));
         expect(userAgent[0], '$ddnsClientName/$ddnsClientVersion');
 
@@ -179,8 +173,15 @@ main() {
 
 /// Testable updater that does not contact the DDNS server
 class Dyndns2Target extends Dyndns2Updater {
-  String mockResponseContents;
+  String? mockResponseContents;
   MockClient mockClient = new MockClient();
+
+  Dyndns2Target()
+      : super(
+          hostname: 'testhostname.example.org',
+          username: 'myusername',
+          password: 'mypassword',
+        );
 
   HttpClient get httpClient {
     mockClient.mockResponseContents = mockResponseContents;
@@ -190,8 +191,15 @@ class Dyndns2Target extends Dyndns2Updater {
 
 /// Testable updater that does not contact the DDNS server
 class GoogleDomainsTarget extends GoogleDomainsUpdater {
-  String mockResponseContents;
+  String? mockResponseContents;
   MockClient mockClient = new MockClient();
+
+  GoogleDomainsTarget()
+      : super(
+          hostname: 'testhostname.example.org',
+          username: 'myusername',
+          password: 'mypassword',
+        );
 
   HttpClient get httpClient {
     mockClient.mockResponseContents = mockResponseContents;
@@ -200,12 +208,12 @@ class GoogleDomainsTarget extends GoogleDomainsUpdater {
 }
 
 class MockClient implements HttpClient {
-  Uri urlSent;
-  MockRequest mockRequest;
-  String mockResponseContents;
-  Uri credentialsUrl;
-  String credentialsRealm;
-  HttpClientCredentials credentials;
+  Uri? urlSent;
+  MockRequest? mockRequest;
+  String? mockResponseContents;
+  Uri? credentialsUrl;
+  String? credentialsRealm;
+  HttpClientCredentials? credentials;
 
   @override
   void addCredentials(
@@ -223,7 +231,7 @@ class MockClient implements HttpClient {
       throw 'called getUrl more than once';
     }
     mockRequest = new MockRequest();
-    mockRequest.mockResponseContents = mockResponseContents;
+    mockRequest!.mockResponseContents = mockResponseContents;
     return new Future.value(mockRequest);
   }
 
@@ -234,7 +242,7 @@ class MockHeaders extends HttpHeaders {
   Map<String, List<String>> valueMap = {};
 
   @override
-  List<String> operator [](String name) {
+  List<String>? operator [](String name) {
     return valueMap[name];
   }
 
@@ -242,13 +250,13 @@ class MockHeaders extends HttpHeaders {
 
   @override
   void set(String name, Object value, {bool preserveHeaderCase = false}) {
-    valueMap[name] = [value];
+    valueMap[name] = [value as String];
   }
 }
 
 class MockRequest implements HttpClientRequest {
   final MockHeaders _headers = new MockHeaders();
-  String mockResponseContents;
+  String? mockResponseContents;
 
   @override
   HttpHeaders get headers => _headers;
@@ -266,7 +274,7 @@ class MockRequest implements HttpClientRequest {
 class MockResponse implements HttpClientResponse {
   int statusCode = HttpStatus.ok;
   String reasonPhrase = 'someReason';
-  String mockResponseContents;
+  String? mockResponseContents;
 
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 

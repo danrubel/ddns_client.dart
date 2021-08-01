@@ -27,21 +27,17 @@ main() {
   monitor.address = new InternetAddress('1.2.3.4');
 
   // Check the public address immediately and every 10 minutes thereafter
-  monitor.startWatching().listen((PublicAddressEvent event) {
+  monitor.startWatching()!.listen((PublicAddressEvent event) {
     print('Original public address: ${event.oldAddress}');
     print('Current  public address: ${event.newAddress}');
 
     // If the public address changed, then update the dynamic dns entry
     if (event.oldAddress != null && event.oldAddress != event.newAddress) {
-      Dyndns2Updater updater =
-          new Dyndns2Updater(username: null, password: null, hostname: null);
-      if (updater.username == null ||
-          updater.password == null ||
-          updater.hostname == null) {
-        print('must supply username, password, and hostname'
-            ' to update a dynamic dns entry');
-        exit(1);
-      }
+      Dyndns2Updater updater = new Dyndns2Updater(
+        hostname: 'your.host.example.org',
+        username: 'your.username',
+        password: 'your.password',
+      );
       updater.update(event.newAddress).then((UpdateResult result) {
         if (result.success == true) {
           // success

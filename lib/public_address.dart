@@ -15,7 +15,7 @@ typedef RandomWebsite = PublicAddressWebsite Function();
 /// in the event stream returned by startWatching method
 /// in [PublicAddressMonitor].
 class PublicAddressEvent {
-  final InternetAddress oldAddress;
+  final InternetAddress? oldAddress;
   final InternetAddress newAddress;
 
   PublicAddressEvent(this.oldAddress, this.newAddress);
@@ -26,9 +26,9 @@ class PublicAddressEvent {
 class PublicAddressException implements Exception {
   final String message;
   final String url;
-  final int statusCode;
+  final int? statusCode;
   final exception;
-  final StackTrace stackTrace;
+  final StackTrace? stackTrace;
 
   const PublicAddressException(this.message, this.url,
       {this.statusCode, this.exception, this.stackTrace});
@@ -55,7 +55,7 @@ class PublicAddressException implements Exception {
     return sb.toString();
   }
 
-  void _writeStackTrace(StringBuffer sb, StackTrace stackTrace) {
+  void _writeStackTrace(StringBuffer sb, StackTrace? stackTrace) {
     if (stackTrace != null) {
       sb.writeln();
       sb.write(stackTrace);
@@ -78,7 +78,7 @@ class PublicAddressMonitor {
   /// This field is initialized directly or via the constructor,
   /// and updated with the current public internet address
   /// when [checkAddress] is called.
-  InternetAddress address;
+  InternetAddress? address;
 
   /// The function for obtaining a website
   /// which can be queried for the public internet address.
@@ -86,11 +86,11 @@ class PublicAddressMonitor {
 
   /// The timer used for periodically checking the public network address
   /// or `null` if not monitoring.
-  Timer _monitorTimer;
+  Timer? _monitorTimer;
 
   /// The controller for sending public address change events to the caller
   /// of [startWatching] or `null` if not monitoring.
-  StreamController<PublicAddressEvent> _monitorController;
+  StreamController<PublicAddressEvent>? _monitorController;
 
   final Logger _logger = new Logger('PublicAddressDetector');
 
@@ -98,17 +98,18 @@ class PublicAddressMonitor {
   /// Pass `MockPublicAddressMonitor.randomWebsite` into this constructor
   /// so that this and applications built on it
   /// can be tested without actually querying for the public internet address.
-  PublicAddressMonitor([RandomWebsite randomWebsite])
+  PublicAddressMonitor([RandomWebsite? randomWebsite])
       : randomWebsite = randomWebsite ?? PublicAddressWebsite.randomWebsite;
 
   /// Check [address] against the address returned by a public website,
   /// and update [address] if it is different than what is returned.
-  /// Return `true` if [address] is not `null` and does not match
+  /// Return `true` if [address] does not match
   /// the internet address returned by a [PublicAddressWebsite].
   Future<bool> get _hasAddressChanged {
     PublicAddressWebsite website = randomWebsite();
     _logger.log(Level.FINE, 'requesting public internet address from $website');
-    return website.requestAddress.then((InternetAddress newAddress) {
+    return website.requestAddress.then((InternetAddress? newAddress) {
+      if (newAddress == null) return false;
       if (address == null) {
         address = newAddress;
         return true;
@@ -132,13 +133,13 @@ class PublicAddressMonitor {
   /// If [startWatching] has been called, then an event is sent
   /// via the stream returned by [startWatching].
   Future<bool> checkAddress([_]) async {
-    InternetAddress oldAddress = address;
+    InternetAddress? oldAddress = address;
     if (!await _hasAddressChanged) return false;
 
     // If the address has changed
     // then verify the new address with a different website
     // before reporting it as changed
-    InternetAddress newAddress = address;
+    InternetAddress newAddress = address!;
     address = oldAddress;
     if (!await _hasAddressChanged) return false;
 
@@ -147,29 +148,29 @@ class PublicAddressMonitor {
 
     // If the address has changed, then notify listeners via an event
     if (_monitorController != null) {
-      _monitorController.add(new PublicAddressEvent(oldAddress, address));
+      _monitorController!.add(new PublicAddressEvent(oldAddress, newAddress));
     }
     return true;
   }
 
   /// Start monitoring the public address and return a stream of events.
   /// If monitoring has already been started, then do nothing and return `null`.
-  Stream<PublicAddressEvent> startWatching({Duration duration}) {
+  Stream<PublicAddressEvent>? startWatching({Duration? duration}) {
     if (_monitorTimer != null) return null;
     if (duration == null) duration = new Duration(minutes: 10);
     _monitorTimer = new Timer.periodic(duration, checkAddress);
     scheduleMicrotask(checkAddress);
     _monitorController = new StreamController();
-    return _monitorController.stream;
+    return _monitorController!.stream;
   }
 
   /// Stop monitoring the public internet address.
   /// If monitoring is already stopped, then do nothing.
   void stopWatching() {
     if (_monitorTimer == null) return;
-    _monitorTimer.cancel();
+    _monitorTimer!.cancel();
     _monitorTimer = null;
-    _monitorController.close();
+    _monitorController!.close();
     _monitorController = null;
   }
 }
@@ -177,7 +178,7 @@ class PublicAddressMonitor {
 /// [PublicAddressWebsite] represents a public site
 /// for requesting the public internet address.
 class PublicAddressWebsite {
-  static Random _random;
+  static Random? _random;
 
   /// Websites used to determine the public internet address.
   /// Typically clients periodically call [randomWebsite()]
@@ -230,10 +231,10 @@ class PublicAddressWebsite {
   final Uri uri;
 
   /// The prefix before the internet address in the response or `null` if none
-  final String prefix;
+  final String? prefix;
 
   /// The suffix after the internet address in the response or `null` if none
-  final String suffix;
+  final String? suffix;
 
   /// Construct a new instance to query the given URL for the public address.
   PublicAddressWebsite(String url, {this.prefix, this.suffix})
@@ -243,7 +244,7 @@ class PublicAddressWebsite {
   HttpClient get httpClient => new HttpClient();
 
   /// Determine the current public internet address.
-  Future<InternetAddress> get requestAddress {
+  Future<InternetAddress?> get requestAddress {
     var timeout = new Duration(seconds: 9);
     return httpClient
         .getUrl(uri)
@@ -261,16 +262,16 @@ class PublicAddressWebsite {
   InternetAddress extractAddress(String contents) {
     int start = 0;
     if (prefix != null) {
-      int index = contents.indexOf(prefix);
+      int index = contents.indexOf(prefix!);
       if (index == -1) {
         throw new PublicAddressException(
             'Expected to find $prefix\nin $contents', uri.toString());
       }
-      start = index + prefix.length;
+      start = index + prefix!.length;
     }
     int end = contents.length;
     if (suffix != null) {
-      int index = contents.indexOf(suffix);
+      int index = contents.indexOf(suffix!);
       if (index == -1) {
         throw new PublicAddressException(
             'Expected to find $suffix\nin $contents', uri.toString());
@@ -280,10 +281,14 @@ class PublicAddressWebsite {
     String text = contents.substring(start, end).trim();
     try {
       return new InternetAddress(text);
-    } on ArgumentError catch (e, s) {
+    } on ArgumentError catch (error, trace) {
       throw new PublicAddressException(
           'Extracted invalid address: $text from: $contents', uri.toString(),
-          exception: e, stackTrace: s);
+          exception: error, stackTrace: trace);
+    } catch (error, trace) {
+      throw new PublicAddressException(
+          'Extract address failed: $text from: $contents', uri.toString(),
+          exception: error, stackTrace: trace);
     }
   }
 
@@ -295,42 +300,29 @@ class PublicAddressWebsite {
   }
 
   /// Extract the public internet address from the response
-  Future<InternetAddress> processResponse(HttpClientResponse response) {
+  Future<InternetAddress> processResponse(HttpClientResponse response) async {
     if (response.statusCode != HttpStatus.ok) {
       String errMsg = 'Request failed';
       // If the website refused to answer, then remove it from the list
       if (response.statusCode == HttpStatus.forbidden) {
         websites.remove(this);
-        errMsg = 'Website returned 403 and was removed from the list.'
+        errMsg = 'Website $uri returned 403 and was removed from the list.'
             ' ${websites.length} webistes remain.';
       }
       throw new PublicAddressException(errMsg, uri.toString(),
           statusCode: response.statusCode);
     }
-    Completer<InternetAddress> completer = new Completer();
-    var buf = new StringBuffer();
-    response.transform(utf8.decoder).listen((String contents) {
-      buf.write(contents);
-    }, onDone: () {
-      try {
-        if (!completer.isCompleted) {
-          completer.complete(extractAddress(buf.toString()));
-        }
-      } catch (e, s) {
-        if (!completer.isCompleted) {
-          completer.completeError(new PublicAddressException(
-              'Response processing failed', uri.toString(),
-              exception: e, stackTrace: s));
-        }
-      }
-    }, onError: (e, s) {
-      if (!completer.isCompleted) {
-        completer.completeError(throw new PublicAddressException(
-            'Response transform failed', uri.toString(),
-            exception: e, stackTrace: s));
-      }
-    });
-    return completer.future;
+    String addressText;
+    try {
+      addressText = await response
+          .transform(utf8.decoder)
+          .fold('', (prev, text) => '$prev$text');
+    } catch (error, trace) {
+      throw new PublicAddressException(
+          'Response transform failed', uri.toString(),
+          exception: error, stackTrace: trace);
+    }
+    return extractAddress(addressText);
   }
 
   String toString() => 'website[$uri]';
@@ -339,7 +331,7 @@ class PublicAddressWebsite {
   /// the public internet address.
   static PublicAddressWebsite randomWebsite() {
     if (_random == null) _random = new Random();
-    int index = _random.nextInt(websites.length);
+    int index = _random!.nextInt(websites.length);
     return websites[index];
   }
 }

@@ -14,15 +14,13 @@ import 'package:ddns_client/public_address.dart';
 class MockPublicAddressWebsite implements PublicAddressWebsite {
   /// Set this field with the value that would be returned by a public address
   /// provider when the [PublicAddressMonitor.checkAddress] method is called.
-  static String addressTextFromWebsite;
+  static String? addressTextFromWebsite;
 
   @override
-  Future<InternetAddress> get requestAddress {
-    if (addressTextFromWebsite == null) {
-      throw 'must set addressFromWebsite first';
-    }
-    return new Future.value(new InternetAddress(addressTextFromWebsite));
-  }
+  Future<InternetAddress?> get requestAddress =>
+      new Future.value(addressTextFromWebsite != null
+          ? InternetAddress(addressTextFromWebsite!)
+          : null);
 
   noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 
