@@ -117,12 +117,12 @@ class Dyndns2Updater extends _CommonDNSUpdater {
     if (username == null || password == null) {
       throw 'must set username/password';
     }
-    StringBuffer sb =
-        new StringBuffer('https://members.dyndns.org/nic/update?hostname=');
-    sb.write(hostname);
-    sb.write('&myip=');
-    sb.write(address.address);
-    Uri uri = Uri.parse(sb.toString());
+    StringBuffer buf = new StringBuffer()
+      ..write('https://members.dyndns.org/nic/update?hostname=')
+      ..write(hostname)
+      ..write('&myip=')
+      ..write(address.address);
+    Uri uri = Uri.parse(buf.toString());
     HttpClient client = httpClient;
     client.addCredentials(
         uri, 'realm', new HttpClientBasicCredentials(username, password));
@@ -147,15 +147,16 @@ class GoogleDomainsUpdater extends _CommonDNSUpdater {
     if (username == null || password == null) {
       throw 'must set username/password';
     }
-    StringBuffer sb = new StringBuffer('https://');
-    sb.write(username);
-    sb.write(':');
-    sb.write(password);
-    sb.write('@domains.google.com/nic/update?hostname=');
-    sb.write(hostname);
-    sb.write('&myip=');
-    sb.write(address.address);
-    Uri uri = Uri.parse(sb.toString());
+    StringBuffer buf = new StringBuffer()
+      ..write('https://')
+      ..write(username)
+      ..write(':')
+      ..write(password)
+      ..write('@domains.google.com/nic/update?hostname=')
+      ..write(hostname)
+      ..write('&myip=')
+      ..write(address.address);
+    Uri uri = Uri.parse(buf.toString());
     HttpClient client = httpClient;
     client.addCredentials(
         uri, 'realm', new HttpClientBasicCredentials(username, password));
