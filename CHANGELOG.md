@@ -1,4 +1,4 @@
-## 2.0.0-dev
+## 1.0.2
 
 * PublicAddressMonitor.checkAddress changed to return `true` after monitor is first constructed.
 

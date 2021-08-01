@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:io';
 
 const String ddnsClientName = 'dart_ddns_client';
-const String ddnsClientVersion = '1.0.1';
+const String ddnsClientVersion = '1.0.2';
 
 /**
  * [DynamicDNSUpdater] is a base class for interacting with a dynamic DNS server
