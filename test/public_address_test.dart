@@ -44,7 +44,7 @@ main([List<String> args]) {
       test('address null', () async {
         MockPublicAddressWebsite.addressTextFromWebsite = '1.2.3.4';
         expect(monitor.address, isNull);
-        expect(await monitor.checkAddress(), isFalse);
+        expect(await monitor.checkAddress(), isTrue);
         expect(monitor.address.address, '1.2.3.4');
       });
 
@@ -76,6 +76,26 @@ main([List<String> args]) {
       });
 
       test('address null', () async {
+        monitor = PublicAddressMonitor(
+            MockPublicAddressWebsiteReturnsNull.randomWebsite);
+        expect(monitor.address, isNull);
+        Completer completer = new Completer();
+        monitor
+            .startWatching(duration: const Duration(milliseconds: 2))
+            .listen((PublicAddressEvent event) {
+          print('unexpected event: ${event.oldAddress}, ${event.newAddress}');
+          completer.complete();
+        });
+        await completer.future.timeout(const Duration(milliseconds: 10),
+            onTimeout: () {
+          // timeout expected
+        });
+        expect(completer.isCompleted, isFalse,
+            reason: 'should not send event if null address');
+        expect(monitor.address, isNull);
+      });
+
+      test('address start', () async {
         MockPublicAddressWebsite.addressTextFromWebsite = '1.2.3.4';
         expect(monitor.address, isNull);
         Completer completer = new Completer();
@@ -91,12 +111,19 @@ main([List<String> args]) {
         MockPublicAddressWebsite.addressTextFromWebsite = '1.2.3.4';
         monitor.address = new InternetAddress('1.2.3.4');
         Completer completer = new Completer();
-        monitor.startWatching().listen((PublicAddressEvent event) {
-          expect(event.oldAddress.address, '1.2.3.4');
-          expect(event.newAddress.address, '1.2.3.4');
+        monitor
+            .startWatching(duration: const Duration(milliseconds: 2))
+            .listen((PublicAddressEvent event) {
+          print('unexpected event: ${event.oldAddress}, ${event.newAddress}');
           completer.complete();
         });
-        await completer.future;
+        await completer.future.timeout(const Duration(milliseconds: 10),
+            onTimeout: () {
+          // timeout expected
+        });
+        expect(completer.isCompleted, isFalse,
+            reason: 'should not send event if address is the same');
+        expect(monitor.address.address, '1.2.3.4');
       });
 
       test('address different', () async {
@@ -316,5 +343,15 @@ class MockResponse implements HttpClientResponse {
       controller.close();
     });
     return controller.stream;
+  }
+}
+
+class MockPublicAddressWebsiteReturnsNull extends MockPublicAddressWebsite {
+  @override
+  Future<InternetAddress> get requestAddress => Future(null);
+
+  /// Return a new webiste that will return [addressTextFromWebsite].
+  static PublicAddressWebsite randomWebsite() {
+    return new MockPublicAddressWebsiteReturnsNull();
   }
 }

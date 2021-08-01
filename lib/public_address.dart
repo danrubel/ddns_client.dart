@@ -9,7 +9,7 @@ import 'package:logging/logging.dart';
 
 /// Signature for a method that will return a website
 /// which can be queried for the public internet address.
-typedef PublicAddressWebsite RandomWebsite();
+typedef RandomWebsite = PublicAddressWebsite Function();
 
 /// A [PublicAddressEvent] represents a public internet address change
 /// in the event stream returned by startWatching method
@@ -92,11 +92,6 @@ class PublicAddressMonitor {
   /// of [startWatching] or `null` if not monitoring.
   StreamController<PublicAddressEvent> _monitorController;
 
-  /// A flag indicating whether [checkAddress] has been called
-  /// after a call to [startWatching].
-  /// This flag will be `null` if [startWatching] has not been called.
-  bool _firstAddressCheck;
-
   final Logger _logger = new Logger('PublicAddressDetector');
 
   /// Construct a new public internet address monitor.
@@ -118,7 +113,7 @@ class PublicAddressMonitor {
     return website.requestAddress.then((InternetAddress newAddress) {
       if (address == null) {
         address = newAddress;
-        return false;
+        return true;
       }
       if (address != newAddress) {
         address = newAddress;
@@ -140,25 +135,23 @@ class PublicAddressMonitor {
   /// via the stream returned by [startWatching].
   Future<bool> checkAddress([_]) async {
     InternetAddress oldAddress = address;
+    if (!await _hasAddressChanged) return false;
 
-    bool hasChanged = await _hasAddressChanged;
-
-    // If the address has changed or the website failed to return an address,
+    // If the address has changed
     // then verify the new address with a different website
     // before reporting it as changed
-    if (hasChanged || address == null) {
-      InternetAddress newAddress = address;
-      address = oldAddress;
-      hasChanged = await _hasAddressChanged && address == newAddress;
-    }
+    InternetAddress newAddress = address;
+    address = oldAddress;
+    if (!await _hasAddressChanged) return false;
 
-    // If the address has changed or this is the first address check
-    // then notify listeners via an event
-    if (_monitorController != null && (hasChanged || _firstAddressCheck)) {
-      _firstAddressCheck = false;
+    // Do not make any changes if the two websites disagree about the address.
+    if (address != newAddress) return false;
+
+    // If the address has changed, then notify listeners via an event
+    if (_monitorController != null) {
       _monitorController.add(new PublicAddressEvent(oldAddress, address));
     }
-    return new Future.value(hasChanged);
+    return true;
   }
 
   /// Start monitoring the public address and return a stream of events.
@@ -167,7 +160,6 @@ class PublicAddressMonitor {
     if (_monitorTimer != null) return null;
     if (duration == null) duration = new Duration(minutes: 10);
     _monitorTimer = new Timer.periodic(duration, checkAddress);
-    _firstAddressCheck = true;
     scheduleMicrotask(checkAddress);
     _monitorController = new StreamController();
     return _monitorController.stream;
@@ -181,7 +173,6 @@ class PublicAddressMonitor {
     _monitorTimer = null;
     _monitorController.close();
     _monitorController = null;
-    _firstAddressCheck = null;
   }
 }
 

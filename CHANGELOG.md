@@ -1,3 +1,7 @@
+## 2.0.0-dev
+
+* PublicAddressMonitor.checkAddress changed to return `true` after monitor is first constructed.
+
 ## 1.0.1
 
 * Cleanup analyzer errors/warnings
