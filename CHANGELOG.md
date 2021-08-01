@@ -1,6 +1,8 @@
 ## 2.0.0
 
 * Make UpdateResult fields final
+* Make PublicAddressWebsite.uri field final
+* Code cleanup
 
 ## 1.0.2
 

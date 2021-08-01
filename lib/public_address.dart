@@ -227,7 +227,7 @@ class PublicAddressWebsite {
   ];
 
   /// The URL of the website used to check the public internet address.
-  Uri uri;
+  final Uri uri;
 
   /// The prefix before the internet address in the response or `null` if none
   final String prefix;
@@ -236,9 +236,8 @@ class PublicAddressWebsite {
   final String suffix;
 
   /// Construct a new instance to query the given URL for the public address.
-  PublicAddressWebsite(String url, {this.prefix: null, this.suffix: null}) {
-    uri = Uri.parse(url);
-  }
+  PublicAddressWebsite(String url, {this.prefix, this.suffix})
+      : uri = Uri.parse(url);
 
   /// Return a new client for querying the server
   HttpClient get httpClient => new HttpClient();
