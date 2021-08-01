@@ -98,10 +98,8 @@ class PublicAddressMonitor {
   /// Pass `MockPublicAddressMonitor.randomWebsite` into this constructor
   /// so that this and applications built on it
   /// can be tested without actually querying for the public internet address.
-  PublicAddressMonitor([this.randomWebsite]) {
-    if (randomWebsite == null)
-      randomWebsite = PublicAddressWebsite.randomWebsite;
-  }
+  PublicAddressMonitor([RandomWebsite randomWebsite])
+      : randomWebsite = randomWebsite ?? PublicAddressWebsite.randomWebsite;
 
   /// Check [address] against the address returned by a public website,
   /// and update [address] if it is different than what is returned.
