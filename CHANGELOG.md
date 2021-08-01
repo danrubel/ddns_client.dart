@@ -2,6 +2,7 @@
 
 * Make UpdateResult fields final
 * Make PublicAddressWebsite.uri field final
+* Update list of public websites
 * Code cleanup
 
 ## 1.0.2

@@ -194,6 +194,7 @@ class PublicAddressWebsite {
   ///    host -t a dartsclink.com | sed 's/.*has address //'
   ///    http://ifconfig.me/ip - works fine from browser, but not app
   ///    http://corz.org/ip - periodically blocks
+  ///    http://ifcfg.me/ip - refused to connect
   ///
   static List<PublicAddressWebsite> websites = [
     new PublicAddressWebsite('http://checkip.dyndns.org',
@@ -211,7 +212,6 @@ class PublicAddressWebsite {
     new PublicAddressWebsite('http://eth0.me/'),
     new PublicAddressWebsite('http://icanhazip.com'),
     new PublicAddressWebsite('http://ident.me/'),
-    new PublicAddressWebsite('http://ifcfg.me/ip'),
     new PublicAddressWebsite('http://ip.appspot.com/'),
     new PublicAddressWebsite('http://ip.dnsexit.com'),
     new PublicAddressWebsite('http://ip.tyk.nu/'),
