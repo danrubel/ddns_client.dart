@@ -27,17 +27,14 @@ class MockDynamicDNSUpdater implements DynamicDNSUpdater {
   HttpClient get httpClient => null;
 
   @override
-  Future<UpdateResult> update(InternetAddress address) {
+  Future<UpdateResult> update(InternetAddress address) async {
     ++updateCount;
-    return new Future(() {
-      UpdateResult result = new UpdateResult();
-      result.success = true;
-      result.statusCode = HttpStatus.ok;
-      result.reasonPhrase = 'a reason';
-      result.addressText = address.address;
-      result.contents = 'content returned by ddns website';
-      result.timestamp = new DateTime.now();
-      return result;
-    });
+    return new UpdateResult(
+      success: true,
+      statusCode: HttpStatus.ok,
+      reasonPhrase: 'a reason',
+      addressText: address.address,
+      contents: 'content returned by ddns website',
+    );
   }
 }

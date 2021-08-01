@@ -1,3 +1,7 @@
+## 2.0.0
+
+* Make UpdateResult fields final
+
 ## 1.0.2
 
 * PublicAddressMonitor.checkAddress changed to return `true` after monitor is first constructed.

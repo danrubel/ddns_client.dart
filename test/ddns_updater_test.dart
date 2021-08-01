@@ -51,24 +51,30 @@ main() {
     });
 
     test('response_good', () {
-      UpdateResult result = new UpdateResult();
-      target.processResponseContents(result, 'good 1.2.3.4');
+      UpdateResult result = target.processResponseContents(
+          statusCode: HttpStatus.ok,
+          reasonPhrase: 'should be ignored',
+          contents: 'good 1.2.3.4');
       expect(result.contents, 'good 1.2.3.4');
       expect(result.success, isTrue);
       expect(result.addressText, '1.2.3.4');
     });
 
     test('response_nochg', () {
-      UpdateResult result = new UpdateResult();
-      target.processResponseContents(result, 'nochg 5.2.3.4');
+      UpdateResult result = target.processResponseContents(
+          statusCode: HttpStatus.ok,
+          reasonPhrase: 'should be ignored',
+          contents: 'nochg 5.2.3.4');
       expect(result.contents, 'nochg 5.2.3.4');
       expect(result.success, isNull);
       expect(result.addressText, '5.2.3.4');
     });
 
     test('response_badauth', () {
-      UpdateResult result = new UpdateResult();
-      target.processResponseContents(result, 'badauth');
+      UpdateResult result = target.processResponseContents(
+          statusCode: HttpStatus.ok,
+          reasonPhrase: 'should be ignored',
+          contents: 'badauth');
       expect(result.contents, 'badauth');
       expect(result.success, isFalse);
       expect(result.addressText, isNull);
@@ -129,24 +135,30 @@ main() {
     });
 
     test('response_good', () {
-      UpdateResult result = new UpdateResult();
-      target.processResponseContents(result, 'good 1.2.3.4');
+      UpdateResult result = target.processResponseContents(
+          statusCode: HttpStatus.ok,
+          reasonPhrase: 'should be ignored',
+          contents: 'good 1.2.3.4');
       expect(result.contents, 'good 1.2.3.4');
       expect(result.success, isTrue);
       expect(result.addressText, '1.2.3.4');
     });
 
     test('response_nochg', () {
-      UpdateResult result = new UpdateResult();
-      target.processResponseContents(result, 'nochg 5.2.3.4');
+      UpdateResult result = target.processResponseContents(
+          statusCode: HttpStatus.ok,
+          reasonPhrase: 'should be ignored',
+          contents: 'nochg 5.2.3.4');
       expect(result.contents, 'nochg 5.2.3.4');
       expect(result.success, isNull);
       expect(result.addressText, '5.2.3.4');
     });
 
     test('response_badauth', () {
-      UpdateResult result = new UpdateResult();
-      target.processResponseContents(result, 'badauth');
+      UpdateResult result = target.processResponseContents(
+          statusCode: HttpStatus.ok,
+          reasonPhrase: 'should be ignored',
+          contents: 'badauth');
       expect(result.contents, 'badauth');
       expect(result.success, isFalse);
       expect(result.addressText, isNull);

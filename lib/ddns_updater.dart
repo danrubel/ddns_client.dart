@@ -46,36 +46,58 @@ abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
   }
 
   Future<UpdateResult> processResponse(HttpClientResponse response) {
-    UpdateResult result = new UpdateResult();
-    result.timestamp = new DateTime.now();
-    result.statusCode = response.statusCode;
-    result.reasonPhrase = response.reasonPhrase;
-    if (result.statusCode != HttpStatus.ok) {
-      result.success = false;
-      return new Future.value(result);
+    if (response.statusCode != HttpStatus.ok) {
+      return new Future.value(UpdateResult(
+        success: false,
+        statusCode: response.statusCode,
+        reasonPhrase: response.reasonPhrase,
+      ));
     }
     Completer<UpdateResult> completer = new Completer();
-    response.transform(utf8.decoder).listen((String contents) {
-      processResponseContents(result, contents);
-      completer.complete(result);
+    var subscription =
+        response.transform(utf8.decoder).listen((String contents) {
+      completer.complete(processResponseContents(
+        statusCode: response.statusCode,
+        reasonPhrase: response.reasonPhrase,
+        contents: contents,
+      ));
     });
-    return completer.future;
+    return completer.future.then((result) {
+      subscription.cancel();
+      return result;
+    });
   }
 
-  void processResponseContents(UpdateResult result, String contents) {
-    result.contents = contents;
+  UpdateResult processResponseContents({
+    int statusCode,
+    String reasonPhrase,
+    String contents,
+  }) {
     if (contents.startsWith('good ')) {
-      result.success = true;
-      result.addressText = contents.substring(5).trim();
-      return;
+      return UpdateResult(
+        success: true,
+        statusCode: statusCode,
+        reasonPhrase: reasonPhrase,
+        addressText: contents.substring(5).trim(),
+        contents: contents,
+      );
     }
     if (contents.startsWith('nochg ')) {
-      result.success = null;
-      result.addressText = contents.substring(6).trim();
-      return;
+      return UpdateResult(
+        success: null,
+        statusCode: statusCode,
+        reasonPhrase: reasonPhrase,
+        addressText: contents.substring(6).trim(),
+        contents: contents,
+      );
     }
-    result.success = false;
-    result.addressText = null;
+    return UpdateResult(
+      success: false,
+      statusCode: statusCode,
+      reasonPhrase: reasonPhrase,
+      addressText: null,
+      contents: contents,
+    );
   }
 }
 
@@ -148,20 +170,28 @@ class GoogleDomainsUpdater extends _CommonDNSUpdater {
 class UpdateResult {
   /// `true` if the update succeeded, `false` if the update failed
   /// or `null` if the server was already updated to the given internet address.
-  bool success;
+  final bool success;
 
   /// The http status code
-  int statusCode;
+  final int statusCode;
 
   /// The reason phrase associated with the status code.
-  String reasonPhrase;
+  final String reasonPhrase;
 
   /// The unvalidated address text returned by the server or `null` if none
-  String addressText;
+  final String addressText;
 
   /// The content message returned by the server if any.
-  String contents;
+  final String contents;
 
   /// When the result was received and processed.
-  DateTime timestamp;
+  final DateTime timestamp;
+
+  UpdateResult({
+    this.success,
+    this.statusCode,
+    this.reasonPhrase,
+    this.addressText,
+    this.contents,
+  }) : timestamp = DateTime.now();
 }
