@@ -22,7 +22,11 @@ abstract class DynamicDNSUpdater {
   /// The password for the account containing dynamic dns entry
   String password;
 
-  DynamicDNSUpdater({required this.hostname, required this.username, required this.password});
+  DynamicDNSUpdater({
+    required this.hostname,
+    required this.username,
+    required this.password,
+  });
 
   /// Return a new client for updating the dynamic DNS server
   HttpClient get httpClient => new HttpClient();
@@ -33,8 +37,11 @@ abstract class DynamicDNSUpdater {
 }
 
 abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
-  _CommonDNSUpdater({required String hostname, required String username, required String password})
-      : super(hostname: hostname, username: username, password: password);
+  _CommonDNSUpdater({
+    required String hostname,
+    required String username,
+    required String password,
+  }) : super(hostname: hostname, username: username, password: password);
 
   /// Provide additional information for the request
   Future<HttpClientResponse> processRequest(HttpClientRequest request) {
@@ -108,8 +115,11 @@ abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
  * See http://dyn.com/support/developers/api/perform-update/
  */
 class Dyndns2Updater extends _CommonDNSUpdater {
-  Dyndns2Updater({required String hostname, required String username, required String password})
-      : super(hostname: hostname, username: username, password: password);
+  Dyndns2Updater({
+    required String hostname,
+    required String username,
+    required String password,
+  }) : super(hostname: hostname, username: username, password: password);
 
   @override
   Future<UpdateResult> update(InternetAddress address) {
@@ -132,8 +142,11 @@ class Dyndns2Updater extends _CommonDNSUpdater {
  * in https://support.google.com/domains/answer/6147083
  */
 class GoogleDomainsUpdater extends _CommonDNSUpdater {
-  GoogleDomainsUpdater({required String hostname, required String username, required String password})
-      : super(hostname: hostname, username: username, password: password);
+  GoogleDomainsUpdater({
+    required String hostname,
+    required String username,
+    required String password,
+  }) : super(hostname: hostname, username: username, password: password);
 
   @override
   Future<UpdateResult> update(InternetAddress address) {
