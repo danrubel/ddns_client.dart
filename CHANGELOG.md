@@ -5,6 +5,7 @@
 * Make PublicAddressWebsite.uri field final
 * Update list of public websites
 * Code cleanup
+* BREAKING: Simplify DynamicDNSUpdater API
 
 ## 1.0.2
 

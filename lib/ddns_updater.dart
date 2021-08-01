@@ -13,6 +13,12 @@ const String ddnsClientVersion = '2.0.0';
  * https://github.com/infothrill/python-dyndnsc/blob/develop/dyndnsc/updater/dyndns2.py
  */
 abstract class DynamicDNSUpdater {
+  /// Update the DDNS service with the new public address.
+  /// Return a future that completes with bool indicating success.
+  Future<UpdateResult> update(InternetAddress address);
+}
+
+abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
   /// The hostname to be updated
   String hostname;
 
@@ -22,7 +28,7 @@ abstract class DynamicDNSUpdater {
   /// The password for the account containing dynamic dns entry
   String password;
 
-  DynamicDNSUpdater({
+  _CommonDNSUpdater({
     required this.hostname,
     required this.username,
     required this.password,
@@ -30,18 +36,6 @@ abstract class DynamicDNSUpdater {
 
   /// Return a new client for updating the dynamic DNS server
   HttpClient get httpClient => new HttpClient();
-
-  /// Update the DDNS service with the new public address.
-  /// Return a future that completes with bool indicating success.
-  Future<UpdateResult> update(InternetAddress address);
-}
-
-abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
-  _CommonDNSUpdater({
-    required String hostname,
-    required String username,
-    required String password,
-  }) : super(hostname: hostname, username: username, password: password);
 
   /// Provide additional information for the request
   Future<HttpClientResponse> processRequest(HttpClientRequest request) {
