@@ -12,7 +12,6 @@ import 'package:ddns_client/public_address.dart';
 /// so that it and applications built on it
 /// can be tested without actually querying for the public internet address.
 class MockPublicAddressWebsite implements PublicAddressWebsite {
-
   /// Set this field with the value that would be returned by a public address
   /// provider when the [PublicAddressMonitor.checkAddress] method is called.
   static String addressTextFromWebsite;

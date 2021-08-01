@@ -8,7 +8,6 @@ import 'package:ddns_client/public_address.dart';
 import 'package:test/test.dart';
 
 main([List<String> args]) {
-
   // Pass --testAllWebsites on the command line
   // to test obtaining a public internet address from each website.
   // If this is true and these tests run too frequently
@@ -34,7 +33,6 @@ main([List<String> args]) {
   }
 
   group('PublicAddressMonitor', () {
-
     group('checkAddress', () {
       PublicAddressMonitor monitor;
 
@@ -137,7 +135,6 @@ main([List<String> args]) {
   });
 
   group('PublicAddressWebsite', () {
-
     group('extractAddress', () {
       test('simple', () {
         PublicAddressWebsite website =

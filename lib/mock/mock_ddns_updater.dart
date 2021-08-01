@@ -11,7 +11,6 @@ import 'package:ddns_client/ddns_updater.dart';
 /// so that application built on it can be tested without
 /// actually updating a dynamic dns site.
 class MockDynamicDNSUpdater implements DynamicDNSUpdater {
-
   @override
   String hostname = 'mock.ddns.site';
 

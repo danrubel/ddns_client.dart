@@ -10,7 +10,6 @@ import 'package:logging/logging.dart';
 /// notifies the user when it changes,
 /// and updates the dynamic DNS entry with the new public address.
 main() {
-
   // Change the log level to show more information
   // and output log events to the console
   Logger.root.level = Level.FINE;
@@ -33,16 +32,14 @@ main() {
     print('Current  public address: ${event.newAddress}');
 
     // If the public address changed, then update the dynamic dns entry
-    if (event.oldAddress != null &&
-        event.oldAddress != event.newAddress) {
+    if (event.oldAddress != null && event.oldAddress != event.newAddress) {
       Dyndns2Updater updater =
           new Dyndns2Updater(username: null, password: null, hostname: null);
       if (updater.username == null ||
           updater.password == null ||
           updater.hostname == null) {
-        print(
-            'must supply username, password, and hostname'
-                ' to update a dynamic dns entry');
+        print('must supply username, password, and hostname'
+            ' to update a dynamic dns entry');
         exit(1);
       }
       updater.update(event.newAddress).then((UpdateResult result) {

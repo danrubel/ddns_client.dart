@@ -13,7 +13,6 @@ const String ddnsClientVersion = '1.0.1';
  * https://github.com/infothrill/python-dyndnsc/blob/develop/dyndnsc/updater/dyndns2.py
  */
 abstract class DynamicDNSUpdater {
-
   /// The hostname to be updated
   String hostname;
 
@@ -34,15 +33,13 @@ abstract class DynamicDNSUpdater {
 }
 
 abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
-
   _CommonDNSUpdater({String hostname, String username, String password})
       : super(hostname: hostname, username: username, password: password);
 
   /// Provide additional information for the request
   Future<HttpClientResponse> processRequest(HttpClientRequest request) {
-    request.headers.set(
-        HttpHeaders.userAgentHeader,
-        '$ddnsClientName/$ddnsClientVersion');
+    request.headers
+        .set(HttpHeaders.userAgentHeader, '$ddnsClientName/$ddnsClientVersion');
     // Optionally set up headers...
     // Optionally write to the request object...
     return request.close();
@@ -87,7 +84,6 @@ abstract class _CommonDNSUpdater extends DynamicDNSUpdater {
  * See http://dyn.com/support/developers/api/perform-update/
  */
 class Dyndns2Updater extends _CommonDNSUpdater {
-
   Dyndns2Updater({String hostname, String username, String password})
       : super(hostname: hostname, username: username, password: password);
 
@@ -107,9 +103,7 @@ class Dyndns2Updater extends _CommonDNSUpdater {
     Uri uri = Uri.parse(sb.toString());
     HttpClient client = httpClient;
     client.addCredentials(
-        uri,
-        'realm',
-        new HttpClientBasicCredentials(username, password));
+        uri, 'realm', new HttpClientBasicCredentials(username, password));
     return client.getUrl(uri).then(processRequest).then(processResponse);
   }
 }
@@ -120,7 +114,6 @@ class Dyndns2Updater extends _CommonDNSUpdater {
  * in https://support.google.com/domains/answer/6147083
  */
 class GoogleDomainsUpdater extends _CommonDNSUpdater {
-
   GoogleDomainsUpdater({String hostname, String username, String password})
       : super(hostname: hostname, username: username, password: password);
 
@@ -143,9 +136,7 @@ class GoogleDomainsUpdater extends _CommonDNSUpdater {
     Uri uri = Uri.parse(sb.toString());
     HttpClient client = httpClient;
     client.addCredentials(
-        uri,
-        'realm',
-        new HttpClientBasicCredentials(username, password));
+        uri, 'realm', new HttpClientBasicCredentials(username, password));
     return client.getUrl(uri).then(processRequest).then(processResponse);
   }
 }
@@ -155,7 +146,6 @@ class GoogleDomainsUpdater extends _CommonDNSUpdater {
  * along with the reason for failure if it did fail.
  */
 class UpdateResult {
-
   /// `true` if the update succeeded, `false` if the update failed
   /// or `null` if the server was already updated to the given internet address.
   bool success;

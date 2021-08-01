@@ -30,8 +30,8 @@ class PublicAddressException implements Exception {
   final exception;
   final StackTrace stackTrace;
 
-  const PublicAddressException(this.message, this.url, {this.statusCode,
-      this.exception, this.stackTrace});
+  const PublicAddressException(this.message, this.url,
+      {this.statusCode, this.exception, this.stackTrace});
 
   String toString() {
     StringBuffer sb = new StringBuffer();
@@ -74,7 +74,6 @@ class PublicAddressException implements Exception {
 /// http://stackoverflow.com/questions/3097589/getting-my-public-ip-via-api
 /// http://unix.stackexchange.com/questions/22615/how-can-i-get-my-external-ip-address-in-bash
 class PublicAddressMonitor {
-
   /// The current public internet address.
   /// This field is initialized directly or via the constructor,
   /// and updated with the current public internet address
@@ -105,8 +104,8 @@ class PublicAddressMonitor {
   /// so that this and applications built on it
   /// can be tested without actually querying for the public internet address.
   PublicAddressMonitor([this.randomWebsite]) {
-    if (randomWebsite == null) randomWebsite =
-        PublicAddressWebsite.randomWebsite;
+    if (randomWebsite == null)
+      randomWebsite = PublicAddressWebsite.randomWebsite;
   }
 
   /// Check [address] against the address returned by a public website,
@@ -208,43 +207,35 @@ class PublicAddressWebsite {
   ///    http://corz.org/ip - periodically blocks
   ///
   static List<PublicAddressWebsite> websites = [
-      new PublicAddressWebsite(
-          'http://checkip.dyndns.org',
-          prefix: 'Current IP Address:',
-          suffix: '</body>'),
-      new PublicAddressWebsite(
-          'http://checkip.eurodyndns.org',
-          prefix: 'Current IP Address:',
-          suffix: '<br>Hostname:'),
-      new PublicAddressWebsite(
-          'http://freedns.afraid.org:8080/dynamic/check.php',
-          prefix: 'Detected IP :',
-          suffix: 'HTTP_CLIENT_IP'),
-      new PublicAddressWebsite(
-          'http://checkip.dns.he.net',
-          prefix: 'Your IP address is :',
-          suffix: '</body>'),
-      new PublicAddressWebsite('http://bot.whatismyipaddress.com/'),
-      new PublicAddressWebsite('http://curlmyip.com'),
-      new PublicAddressWebsite('https://domains.google.com/checkip'),
-      new PublicAddressWebsite('http://dynamic.zoneedit.com/checkip.html'),
-      new PublicAddressWebsite('http://eth0.me/'),
-      new PublicAddressWebsite('http://icanhazip.com'),
-      new PublicAddressWebsite('http://ident.me/'),
-      new PublicAddressWebsite('http://ifcfg.me/ip'),
-      new PublicAddressWebsite('http://ip.appspot.com/'),
-      new PublicAddressWebsite('http://ip.dnsexit.com'),
-      new PublicAddressWebsite('http://ip.tyk.nu/'),
-      new PublicAddressWebsite('http://ipecho.net/plain'),
-      new PublicAddressWebsite('http://ipinfo.io/ip'),
-      new PublicAddressWebsite('http://ipof.in/txt'),
-      new PublicAddressWebsite('http://ipv4.icanhazip.com'),
-      new PublicAddressWebsite('http://ipv4.nsupdate.info/myip'),
-      new PublicAddressWebsite('http://l2.io/ip'),
-      new PublicAddressWebsite('http://tnx.nl/ip'),
-      new PublicAddressWebsite('http://wgetip.com/'),
-      new PublicAddressWebsite('http://whatismyip.akamai.com/'),
-    ];
+    new PublicAddressWebsite('http://checkip.dyndns.org',
+        prefix: 'Current IP Address:', suffix: '</body>'),
+    new PublicAddressWebsite('http://checkip.eurodyndns.org',
+        prefix: 'Current IP Address:', suffix: '<br>Hostname:'),
+    new PublicAddressWebsite('http://freedns.afraid.org:8080/dynamic/check.php',
+        prefix: 'Detected IP :', suffix: 'HTTP_CLIENT_IP'),
+    new PublicAddressWebsite('http://checkip.dns.he.net',
+        prefix: 'Your IP address is :', suffix: '</body>'),
+    new PublicAddressWebsite('http://bot.whatismyipaddress.com/'),
+    new PublicAddressWebsite('http://curlmyip.com'),
+    new PublicAddressWebsite('https://domains.google.com/checkip'),
+    new PublicAddressWebsite('http://dynamic.zoneedit.com/checkip.html'),
+    new PublicAddressWebsite('http://eth0.me/'),
+    new PublicAddressWebsite('http://icanhazip.com'),
+    new PublicAddressWebsite('http://ident.me/'),
+    new PublicAddressWebsite('http://ifcfg.me/ip'),
+    new PublicAddressWebsite('http://ip.appspot.com/'),
+    new PublicAddressWebsite('http://ip.dnsexit.com'),
+    new PublicAddressWebsite('http://ip.tyk.nu/'),
+    new PublicAddressWebsite('http://ipecho.net/plain'),
+    new PublicAddressWebsite('http://ipinfo.io/ip'),
+    new PublicAddressWebsite('http://ipof.in/txt'),
+    new PublicAddressWebsite('http://ipv4.icanhazip.com'),
+    new PublicAddressWebsite('http://ipv4.nsupdate.info/myip'),
+    new PublicAddressWebsite('http://l2.io/ip'),
+    new PublicAddressWebsite('http://tnx.nl/ip'),
+    new PublicAddressWebsite('http://wgetip.com/'),
+    new PublicAddressWebsite('http://whatismyip.akamai.com/'),
+  ];
 
   /// The URL of the website used to check the public internet address.
   Uri uri;
@@ -266,16 +257,16 @@ class PublicAddressWebsite {
   /// Determine the current public internet address.
   Future<InternetAddress> get requestAddress {
     var timeout = new Duration(seconds: 9);
-    return httpClient.getUrl(uri)
+    return httpClient
+        .getUrl(uri)
         .then(processRequest)
         .timeout(timeout)
         .then(processResponse)
         .catchError((e) {
-          throw new PublicAddressException(
-            'No response within $timeout',
-            uri.toString(),
-            exception: e);
-        }, test: (e) => e is TimeoutException);
+      throw new PublicAddressException(
+          'No response within $timeout', uri.toString(),
+          exception: e);
+    }, test: (e) => e is TimeoutException);
   }
 
   /// Extract the internet address from the response
@@ -285,8 +276,7 @@ class PublicAddressWebsite {
       int index = contents.indexOf(prefix);
       if (index == -1) {
         throw new PublicAddressException(
-            'Expected to find $prefix\nin $contents',
-            uri.toString());
+            'Expected to find $prefix\nin $contents', uri.toString());
       }
       start = index + prefix.length;
     }
@@ -295,8 +285,7 @@ class PublicAddressWebsite {
       int index = contents.indexOf(suffix);
       if (index == -1) {
         throw new PublicAddressException(
-            'Expected to find $suffix\nin $contents',
-            uri.toString());
+            'Expected to find $suffix\nin $contents', uri.toString());
       }
       end = index;
     }
@@ -305,10 +294,8 @@ class PublicAddressWebsite {
       return new InternetAddress(text);
     } on ArgumentError catch (e, s) {
       throw new PublicAddressException(
-          'Extracted invalid address: $text from: $contents',
-          uri.toString(),
-          exception: e,
-          stackTrace: s);
+          'Extracted invalid address: $text from: $contents', uri.toString(),
+          exception: e, stackTrace: s);
     }
   }
 
@@ -326,13 +313,10 @@ class PublicAddressWebsite {
       // If the website refused to answer, then remove it from the list
       if (response.statusCode == HttpStatus.forbidden) {
         websites.remove(this);
-        errMsg =
-            'Website returned 403 and was removed from the list.'
-                ' ${websites.length} webistes remain.';
+        errMsg = 'Website returned 403 and was removed from the list.'
+            ' ${websites.length} webistes remain.';
       }
-      throw new PublicAddressException(
-          errMsg,
-          uri.toString(),
+      throw new PublicAddressException(errMsg, uri.toString(),
           statusCode: response.statusCode);
     }
     Completer<InternetAddress> completer = new Completer();
@@ -346,22 +330,16 @@ class PublicAddressWebsite {
         }
       } catch (e, s) {
         if (!completer.isCompleted) {
-          completer.completeError(
-            new PublicAddressException(
-              'Response processing failed',
-              uri.toString(),
-              exception: e,
-              stackTrace: s));
+          completer.completeError(new PublicAddressException(
+              'Response processing failed', uri.toString(),
+              exception: e, stackTrace: s));
         }
       }
     }, onError: (e, s) {
       if (!completer.isCompleted) {
-        completer.completeError(
-          throw new PublicAddressException(
-            'Response transform failed',
-            uri.toString(),
-            exception: e,
-            stackTrace: s));
+        completer.completeError(throw new PublicAddressException(
+            'Response transform failed', uri.toString(),
+            exception: e, stackTrace: s));
       }
     });
     return completer.future;

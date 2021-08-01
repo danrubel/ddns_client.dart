@@ -20,8 +20,9 @@ main() {
       target.username = 'myusername';
       target.password = 'mypassword';
       target.mockResponseContents = 'good 1.2.3.4';
-      return target.update(
-          new InternetAddress('1.2.3.4')).then((UpdateResult result) {
+      return target
+          .update(new InternetAddress('1.2.3.4'))
+          .then((UpdateResult result) {
         expect(result.success, isTrue);
         expect(result.statusCode, HttpStatus.ok);
         expect(result.reasonPhrase, 'someReason');
@@ -97,8 +98,9 @@ main() {
       target.username = 'myusername';
       target.password = 'mypassword';
       target.mockResponseContents = 'good 1.2.3.4';
-      return target.update(
-          new InternetAddress('1.2.3.4')).then((UpdateResult result) {
+      return target
+          .update(new InternetAddress('1.2.3.4'))
+          .then((UpdateResult result) {
         expect(result.success, isTrue);
         expect(result.statusCode, HttpStatus.ok);
         expect(result.reasonPhrase, 'someReason');
@@ -194,8 +196,8 @@ class MockClient implements HttpClient {
   HttpClientCredentials credentials;
 
   @override
-  void addCredentials(Uri url, String realm,
-      HttpClientCredentials credentials) {
+  void addCredentials(
+      Uri url, String realm, HttpClientCredentials credentials) {
     credentialsUrl = url;
     credentialsRealm = realm;
     this.credentials = credentials;
