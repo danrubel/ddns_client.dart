@@ -15,16 +15,16 @@ class MockDynamicDNSUpdater implements DynamicDNSUpdater {
   String hostname = 'mock.ddns.site';
 
   @override
-  String username;
+  String username = 'some.username';
 
   @override
-  String password;
+  String password = 'some.password';
 
   /// The number of times that [update] is called
   int updateCount = 0;
 
   @override
-  HttpClient get httpClient => null;
+  HttpClient get httpClient => throw 'should not be called';
 
   @override
   Future<UpdateResult> update(InternetAddress address) async {
